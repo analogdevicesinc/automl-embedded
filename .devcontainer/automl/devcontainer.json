@@ -1,0 +1,11 @@
+{
+	// container for running Kenning
+	"name": "AutoML",
+	"build": {
+		"context": "../..",
+		"dockerfile": "Dockerfile",
+	},
+	"containerEnv": {
+		"PYRENODE_PKG": "/opt/renode/renode-latest.pkg.tar.gz"
+	}
+}

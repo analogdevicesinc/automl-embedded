@@ -1,0 +1,128 @@
+{
+  "name": "edge-automl-extension",
+  "displayName": "AutoML extension for Edge platform",
+  "repository": "https://github.com/antmicro/edge-automl-extension",
+  "description": "Extension for deploying tailored models on Edge platforms using AutoML and Neural Architecture Search techniques",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Kenning Edge AutoML",
+      "properties": {
+        "kenning-edge-automl.kenningZephyrRuntimePath": {
+          "type": "string",
+          "description": "Path to the Kenning Zephyr Runtime repository",
+          "default": "/opt/zephyr-workspace/kenning-zephyr-runtime/"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "edge-automl-extension.openReport",
+        "title": "Open generated report",
+        "icon": "$(open-preview)"
+      },
+      {
+        "command": "edge-automl-extension.openConfiguration",
+        "title": "Open configuration for chosen model",
+        "icon": "$(notebook-open-as-text)"
+      },
+      {
+        "command": "edge-automl-extension.refreshReports",
+        "title": "Refresh the report list",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "edge-automl-extension.refresh",
+        "title": "Kenning Edge AutoML: Refresh",
+        "icon": "$(refresh)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "kenning-edge-automl",
+          "title": "Kenning Edge AutoML",
+          "icon": "resources/kenning.svg"
+        }
+      ]
+    },
+    "views": {
+      "kenning-edge-automl": [
+        {
+          "type": "webview",
+          "id": "kenning-edge-automl.configuration",
+          "name": "Configuration"
+        },
+        {
+          "id": "kenning-edge-automl.reports",
+          "name": "Reports"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "edge-automl-extension.refresh",
+          "when": "view == kenning-edge-automl.configuration",
+          "group": "navigation"
+        },
+        {
+          "command": "edge-automl-extension.refreshReports",
+          "when": "view == kenning-edge-automl.reports",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "edge-automl-extension.openReport",
+          "when": "view == kenning-edge-automl.reports && viewItem =~ /^reportData.*;openReport.*/",
+          "group": "inline"
+        },
+        {
+          "command": "edge-automl-extension.openConfiguration",
+          "when": "view == kenning-edge-automl.reports && viewItem =~ /^modelData.*;openConfig.*/",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run package",
+    "compile": "pnpm run check-types && pnpm run lint && node esbuild.js",
+    "watch": "npm-run-all -p watch:*",
+    "watch:esbuild": "node esbuild.js --watch",
+    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+    "package": "pnpm run check-types && pnpm run lint && node esbuild.js --production",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "check-types": "tsc --noEmit",
+    "lint": "eslint src --fix",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@types/vscode": "^1.96.0",
+    "@typescript-eslint/eslint-plugin": "^8.22.0",
+    "@typescript-eslint/parser": "^8.22.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "esbuild": "^0.24.2",
+    "eslint": "^9.19.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.7.3"
+  },
+  "dependencies": {
+    "glob": "^11.0.1",
+    "@vscode-elements/elements-lite": "^0.3.0"
+  }
+}
