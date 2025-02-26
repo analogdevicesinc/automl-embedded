@@ -27,6 +27,7 @@ export const AUTOML_SCENARIO_TEMPLATE = {
             budget_type: "epochs",
             min_budget: 1,
             max_budget: 3,
+            application_size: -1,
         }
     },
     dataset:

@@ -10,7 +10,6 @@ const ANSI_FILTER_REGEX = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)
 
 export function runScenario(configurationView: ConfigurationViewProvider, platform: string, datasetPath: string, timeLimit: string, appSize: string) {
     KChannel.show();
-    KChannel.appendLine(`AppSize: ${appSize} (${typeof appSize})`); // TODO: support app size
 
     const pluginConfig = vscode.workspace.getConfiguration("kenning-edge-automl");
 
@@ -46,6 +45,7 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
     scenario.optimizers[0].parameters.compiled_model_path = path.join(runDir, "vae.tflite");
     scenario.automl.parameters.output_directory = runDir;
     scenario.automl.parameters.time_limit = Number.parseFloat(timeLimit);
+    scenario.automl.parameters.application_size = Number.parseFloat(appSize);
 
     const absRunDir = path.join(path.dirname(workspaceDir), runDir);
     mkdirSync(absRunDir, {recursive: true});
