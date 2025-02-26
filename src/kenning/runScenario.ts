@@ -24,6 +24,7 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
     const runsDir = getWorkspaceDir();
     if (runsDir === undefined) {
         KChannel.append("Open workspace before running Kenning");
+        configurationView.enableRunButton();
         return;
     }
     const runDir = `${runsDir}/${runId}`;

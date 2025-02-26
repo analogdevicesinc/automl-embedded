@@ -154,7 +154,7 @@ export class ModelData extends BaseItemData {
     }
     // Add tag enabling open config button
     if (data.scenarioPath && fs.existsSync(data.scenarioPath)) {
-      this.contextValue += ";openConfig";
+      this.contextValue += ";openConfig;chooseModel";
     }
   }
 

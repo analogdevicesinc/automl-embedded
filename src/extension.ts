@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 
 import { ReportsTreeDataProvider, ReportData, ModelData } from './kenning/reportsTreeView';
-import { openReport, openConfiguration } from './kenning/openResults';
+import { openReport, openConfiguration, chooseModel } from './kenning/openResults'; 
 import { ConfigurationViewProvider } from './configuration/viewProvider';
 
 // This method is called when your extension is activated
@@ -39,13 +39,18 @@ export function activate(context: vscode.ExtensionContext) {
 	);
 	context.subscriptions.push(openConfCmd);
 
-  const provider = new ConfigurationViewProvider(context);
+        const configurationProvider = new ConfigurationViewProvider(context);
+	const chooseModelCmd = vscode.commands.registerCommand(
+		"edge-automl-extension.chooseModel",
+		(model: ModelData) => chooseModel(model, context.workspaceState, configurationProvider),
+	);
+	context.subscriptions.push(chooseModelCmd);
 
   context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider(ConfigurationViewProvider.viewType, provider));
+    vscode.window.registerWebviewViewProvider(ConfigurationViewProvider.viewType, configurationProvider));
 
   context.subscriptions.push(vscode.commands.registerCommand('edge-automl-extension.refresh', () => {
-    provider.refreshConfiguration();
+    configurationProvider.refreshConfiguration();
   }));
 }
 

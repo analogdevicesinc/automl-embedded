@@ -1,6 +1,9 @@
 import * as vscode from 'vscode';
+import * as fs from "fs";
+import * as path from "path";
 import { spawnSync } from 'child_process';
 import { runScenario } from '../kenning/runScenario';
+import { KChannel } from '../utils';
 
 export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
 
@@ -68,6 +71,24 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                             if (this._view) {
                                 this._view.webview.postMessage({type: "setDatasetPath", value: fileUri[0].fsPath});
                             }
+                            this._workspaceState.update('datasetpath', fileUri[0].fsPath);
+                        }
+                    });
+                    break;
+                }
+                case 'browseTargetModelPath': {
+                    vscode.window.showSaveDialog({
+                        title: "Save selected models as",
+                    }).then(async (fileUri) => {
+                        if (fileUri) {
+                            const targetDir = path.dirname(fileUri.fsPath);
+                            if (!fs.existsSync(targetDir)) {
+                                await fs.promises.mkdir(targetDir, {recursive: true});
+                            }
+                            if (this._view) {
+                                this._view.webview.postMessage({type: "setTargetModelPath", value: fileUri.fsPath});
+                            }
+                            this._workspaceState.update('targetmodelpath', fileUri.fsPath);
                         }
                     });
                     break;
@@ -76,6 +97,25 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     this._workspaceState.update(data.name, data.value);
                     break;
                 }
+                case 'getField': {
+                    if (this._view){
+                        this._view.webview.postMessage({type: "getField", elementName: data.elementName, value: this._workspaceState.get(data.storageName)});
+                    }
+                    break;
+                }
+            }
+        });
+
+        webviewView.onDidChangeVisibility(() => {
+            if (this._view && this._view.visible) {
+                this._view.webview.postMessage({
+                    type: "restoreState",
+                    dataset: this._workspaceState.get('datasetpath', ''),
+                    platform: this._workspaceState.get("platform", "MAX32690 Evaluation Kit"),
+                    timeLimit: this._workspaceState.get('timelimit', '10'),
+                    appSize: this._workspaceState.get('appsize', '74'),
+                    targetModelPath: this._workspaceState.get('targetmodelpath', ''),
+                });
             }
         });
     }
@@ -102,7 +142,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
         if (this._view) {
             // Get platforms from Kenning
             const platforms = this.getKenningPlatforms();
-            this._view.webview.postMessage({ type: 'updatePlatforms', platforms: platforms });
+            this._view.webview.postMessage({ type: 'updateConfiguration', platforms: platforms });
             console.log(`sent message to webview ${platforms}`);
         }
     }
@@ -185,6 +225,13 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     <label for="kenning-configuration-app-size" class="normal pale">Application size (in KB)</label>
                 </div>
                 <input type="number" step="0.1" id="kenning-configuration-app-size" class="vscode-textfield kenning-configuration-time-limit" value="${this._workspaceState.get('appsize', '74')}"/>
+                </br>
+                <div class="vscode-label">
+                    <label for="kenning-configuration-app-size" class="normal pale">Selected model path</label>
+                </div>
+                <input id="kenning-configuration-target-model-path" class="vscode-textfield kenning-configuration-target-model-path" value="${this._workspaceState.get('targetmodelpath', '')}">
+                </br>
+                <button id="kenning-configuration-target-model-path-browse" class="vscode-button">Save To</button>
                 </br>
                 </br>
 

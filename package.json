@@ -43,6 +43,11 @@
         "command": "edge-automl-extension.refresh",
         "title": "Kenning Edge AutoML: Refresh",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "edge-automl-extension.chooseModel",
+        "title": "Copy chosen model to given path",
+        "icon": "$(pin)"
       }
     ],
     "viewsContainers": {
@@ -87,6 +92,11 @@
           "group": "inline"
         },
         {
+          "command": "edge-automl-extension.chooseModel",
+          "when": "view == kenning-edge-automl.reports && viewItem =~ /^modelData.*;chooseModel.*/",
+          "group": "inline"
+        },
+        {
           "command": "edge-automl-extension.openConfiguration",
           "when": "view == kenning-edge-automl.reports && viewItem =~ /^modelData.*;openConfig.*/",
           "group": "inline"
@@ -122,7 +132,9 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@types/js-yaml": "^4.0.9",
+    "@vscode-elements/elements-lite": "^0.3.0",
     "glob": "^11.0.1",
-    "@vscode-elements/elements-lite": "^0.3.0"
+    "js-yaml": "^4.1.0"
   }
 }

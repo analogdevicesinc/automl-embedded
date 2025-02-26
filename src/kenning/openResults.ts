@@ -1,9 +1,31 @@
 import * as vscode from 'vscode';
 import * as path from "path";
 import * as fs from "fs";
+import * as yaml from "js-yaml";
 
 import { ReportData, ModelData } from './reportsTreeView';
-import { getWorkspaceDir, REPORT_NAME, REPORT_HTML } from '../utils';
+import { ConfigurationViewProvider } from '../configuration/viewProvider';
+import { getWorkspaceDir, REPORT_NAME, REPORT_HTML, KChannel } from '../utils';
+
+
+const styleOverrides = `
+<style>
+.md-header {
+    visibility: hidden;
+}
+@media screen {
+    [data-md-color-scheme=slate] {
+        --md-default-bg-color: var(--vscode-editor-background);
+    }
+}
+.bk-root {
+    background: var(--vscode-editor-background);
+}
+.md-footer {
+    visibility: hidden;
+}
+</style>
+`;
 
 
 function replaceLinks(
@@ -41,9 +63,10 @@ export function openReport(report: ReportData) {
   	  /((href|src)=")(_static[^"]+)"/g,
   	  (m, p1, p2, p3) => replaceLinks(report, panel, m, p1, p2, p3),
   	);
+  	htmlFile = htmlFile + "\n\n" + styleOverrides;
   	panel.webview.html = htmlFile;
   });
-  
+
 }
 
 
@@ -53,4 +76,69 @@ export function openConfiguration(model: ModelData) {
 			doc => vscode.window.showTextDocument(doc)
 		);
 	}
+}
+
+
+export async function chooseModel(model: ModelData, workspaceState: vscode.Memento | null, configurationProvider: ConfigurationViewProvider | null) {
+  const scenarioPath = model.data.scenarioPath;
+  if (!scenarioPath || !fs.existsSync(scenarioPath)) {
+    KChannel.appendLine(`Scenario not found`);
+    return;
+  }
+
+  const extension = path.extname(scenarioPath);
+  let scenario;
+  if (extension === ".json") {
+    scenario = require(scenarioPath);
+  } else if (extension === ".yml" || extension === ".yaml") {
+    scenario = yaml.load(await fs.promises.readFile(scenarioPath, "utf8"));
+  } else {
+    KChannel.appendLine(`Unsupported format of a scenario`);
+    return;
+  }
+
+  const modelPath: string | undefined = scenario.model_wrapper?.parameters?.model_path;
+  if (modelPath === undefined) {
+    KChannel.appendLine("Scenario does not contain path to the model");
+    return;
+  }
+
+  let targetPath: string | undefined = workspaceState?.get("targetmodelpath", undefined);
+  if (targetPath === undefined || targetPath === "") {
+    const uri = await vscode.window.showSaveDialog({
+      title: "Save selected model as",
+    });
+    if (uri !== undefined) {
+      targetPath = uri.fsPath;
+      if (workspaceState) {
+        await workspaceState.update('targetmodelpath', targetPath);
+        if (configurationProvider) {
+            configurationProvider.refreshConfiguration();
+        }
+      }
+    }
+  }
+
+  if (targetPath) {
+    if (fs.existsSync(targetPath)) {
+      const stats = await fs.promises.lstat(targetPath);
+      if (stats.isDirectory()) {
+        vscode.window.showErrorMessage(`Chosen destination (${targetPath}) is a directory, model will not be saved`);
+        return;
+      }
+    }
+    const targetDir = path.dirname(targetPath);
+    if (!fs.existsSync(targetDir)) {
+      try {
+        await fs.promises.mkdir(targetDir, {recursive: true});
+      } catch (ex) {
+        vscode.window.showErrorMessage(`Cannot create directory (${targetDir}) for a model`);
+        KChannel.appendLine(`Error when creating directory for a model - ${ex}`);
+        return;
+      }
+    }
+    fs.copyFileSync(modelPath, targetPath);
+    KChannel.appendLine(`Model saved to ${targetPath}`);
+    vscode.window.showInformationMessage(`Model is saved to ${targetPath}`);
+  }
 }

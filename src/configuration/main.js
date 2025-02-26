@@ -10,6 +10,7 @@
     const runButton = document.querySelector('#run-automl-button');
     /** @type {HTMLInputElement | null} */
     const datasetField = document.querySelector('#kenning-configuration-dataset-path');
+    /** @type {HTMLButtonElement | null} */
     const datasetFieldBrowseButton = document.querySelector('#kenning-configuration-dataset-path-browse');
     /** @type {HTMLSelectElement | null} */
     const platformField = document.querySelector('#kenning-configuration-platform');
@@ -17,34 +18,60 @@
     const timeLimitField = document.querySelector('#kenning-configuration-time-limit');
     /** @type {HTMLInputElement | null} */
     const appSizeField = document.querySelector('#kenning-configuration-app-size');
+    /** @type {HTMLInputElement | null} */
+    const targetModelPath = document.querySelector('#kenning-configuration-target-model-path');
+    /** @type {HTMLButtonElement | null} */
+    const targetModelPathBrowseButton = document.querySelector('#kenning-configuration-target-model-path-browse');
     if (runButton !== null) {
         runButton.addEventListener('click', () => runAutoML());
     }
     if (datasetFieldBrowseButton !== null) {
-        datasetFieldBrowseButton.addEventListener('click', () => searchDataset());
+        datasetFieldBrowseButton.addEventListener('click', () => vscode.postMessage({ type: 'browseDataset'}));
+    }
+    if (targetModelPathBrowseButton !== null) {
+        targetModelPathBrowseButton.addEventListener('click', () => vscode.postMessage({ type: 'browseTargetModelPath'}));
     }
 
     /**
-    * Sets listener to update workspace state once a given field is changed
-    */
-    function setStorageUpdater(element, storageName, eventType = 'focusout') {
+     * Sets listener to update workspace state once a given field is changed
+     * @param {HTMLInputElement | HTMLSelectElement | null} element 
+     * @param {string} storageName 
+     * @param {string} [eventType='change']
+     */
+    function setStorageUpdater(element, storageName, eventType = 'change') {
         if (element === null) {return;}
         element.addEventListener(eventType, (event) => {
-            vscode.postMessage({type: 'updateField', name: storageName, value: event.target.value ?? event.target.selected});
+            // @ts-ignore - Target is either HTMLInputElement or HTMLSelectElement
+            vscode.postMessage({type: 'updateField', name: storageName, value: event.target?.value ?? event.target?.selected ?? ""});
         });
     }
 
+    /**
+     * Sets value of field with value from workspace state
+     * @param {string} elementName 
+     * @param {string} storageName 
+     */
+    function getField(elementName, storageName) {
+        vscode.postMessage({type: 'getField', elementName: elementName, storageName: storageName});
+    }
+
     setStorageUpdater(datasetField, 'datasetpath');
-    setStorageUpdater(platformField, 'platform', 'change');
+    setStorageUpdater(platformField, 'platform');
     setStorageUpdater(timeLimitField, 'timelimit');
     setStorageUpdater(appSizeField, 'appsize');
+    setStorageUpdater(targetModelPath, 'targetmodelpath');
 
     // Handle messages sent from the extension to the webview
     window.addEventListener('message', event => {
         const message = event.data; // The json data that the extension sent
         switch (message.type) {
-            case 'updatePlatforms': {
+            case 'updateConfiguration': {
                 updatePlatformsSelect(message.platforms);
+                getField("#kenning-configuration-target-model-path", "targetmodelpath");
+                break;
+            }
+            case 'restoreState': {
+                restoreState(message);
                 break;
             }
             case 'enableButton': {
@@ -57,9 +84,48 @@
                 }
                 break;
             }
+            case 'setTargetModelPath': {
+                if (targetModelPath) {
+                    targetModelPath.value = message.value;
+                }
+            }
+            case 'getField': {
+                const element = document.querySelector(message.elementName);
+                if (element !== null) {
+                    element.value = message.value;
+                }
+            }
         }
     });
 
+    /**
+     * Restore webview state.
+     * @typedef {{dataset?: string, platform?: string, timeLimit?: string, appSize?: string, targetModelPath?: string}} State
+     * @param {State} state
+     */
+    function restoreState(state) {
+        if (datasetField && state.dataset !== undefined) {
+            datasetField.value = state.dataset;
+        }
+        if (platformField && state.platform !== undefined) {
+            for (const option of platformField.options) {
+                if (option.value === state.platform) {
+                    platformField.selectedIndex = option.index;
+                    break;
+                }
+            }
+        }
+        if (timeLimitField && state.timeLimit !== undefined) {
+            timeLimitField.value = state.timeLimit;
+        }
+        if (appSizeField && state.appSize !== undefined) {
+            appSizeField.value = state.appSize;
+        }
+        if (targetModelPath && state.targetModelPath !== undefined) {
+            targetModelPath.value = state.targetModelPath;
+        }
+    }
+    
     /**
      * Updates options in select platforms.
      * @param {string[]} platforms
@@ -117,13 +183,6 @@
         const appSize = validateData(appSizeField);
 
         vscode.postMessage({ type: 'runAutoML', datasetPath, platform, timeLimit, appSize });
-    }
-
-    /**
-     * Opens a file browser for dataset.
-     */
-    function searchDataset() {
-        vscode.postMessage({ type: 'browseDataset'});
     }
 
 }());
