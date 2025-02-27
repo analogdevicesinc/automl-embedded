@@ -47,7 +47,7 @@
       {
         "command": "edge-automl-extension.chooseModel",
         "title": "Copy chosen model to given path",
-        "icon": "$(pin)"
+        "icon": "$(save)"
       }
     ],
     "viewsContainers": {
@@ -115,6 +115,7 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
     "check-types": "tsc --noEmit",
+    "vsix-package": "vsce package",
     "lint": "eslint src --fix",
     "test": "vscode-test"
   },
@@ -135,6 +136,7 @@
     "@types/js-yaml": "^4.0.9",
     "@vscode-elements/elements-lite": "^0.3.0",
     "glob": "^11.0.1",
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "vsce": "^2.15.0"
   }
 }

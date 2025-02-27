@@ -24,6 +24,16 @@ const esbuildProblemMatcherPlugin = {
 };
 
 async function main() {
+	await esbuild.build({
+		entryPoints: [
+			'@vscode-elements/elements-lite/components/button/button.css',
+			'@vscode-elements/elements-lite/components/textfield/textfield.css',
+			'@vscode-elements/elements-lite/components/select/select.css',
+			'@vscode-elements/elements-lite/components/label/label.css',
+		],
+		bundle: true,
+		outdir: "resources/elements-lite"
+	});
 	const ctx = await esbuild.context({
 		entryPoints: [
 			'src/extension.ts'

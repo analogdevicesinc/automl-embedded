@@ -71,7 +71,7 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
                     "-m", "kenning", "automl", "optimize", "test", "report",
                     "--report-path", runReportPath,
                     "--cfg", runScenarioPath,
-                    "--verbosity", "DEBUG",
+                    "--verbosity", "INFO",
                     "--to-html",
                     "--save-summary",
                     "--allow-failures",

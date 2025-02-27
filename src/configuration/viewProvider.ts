@@ -155,12 +155,12 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
 
     private _getHtmlForWebview(webview: vscode.Webview) {
         // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'configuration', 'main.js'));
+        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'resources', 'configuration', 'main.js'));
 
         // Do the same for the stylesheet.
-        const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'src', 'configuration', 'main.css'));
+        const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'resources', 'configuration', 'main.css'));
 
-        const elementsComponentsUri = vscode.Uri.joinPath(this._extensionUri, "node_modules", "@vscode-elements", "elements-lite", "components");
+        const elementsComponentsUri = vscode.Uri.joinPath(this._extensionUri, "resources", "elements-lite");
         const includeElementsClasses: string[] = [];
         for (const cssClass of ["button", "textfield", "select", "label"]) {
             const cssUri = webview.asWebviewUri(vscode.Uri.joinPath(elementsComponentsUri, cssClass, `${cssClass}.css`));
