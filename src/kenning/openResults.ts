@@ -97,10 +97,14 @@ export async function chooseModel(model: ModelData, workspaceState: vscode.Memen
     return;
   }
 
-  const modelPath: string | undefined = scenario.model_wrapper?.parameters?.model_path;
+  let modelPath: string | undefined = scenario.optimizers?.at(-1).parameters?.compiled_model_path;
   if (modelPath === undefined) {
-    KChannel.appendLine("Scenario does not contain path to the model");
-    return;
+    KChannel.appendLine("Scenario does not contain compiled model path, using unoptimized model");
+    modelPath = scenario.model_wrapper?.parameters?.model_path;
+    if (modelPath === undefined) {
+      KChannel.appendLine("Scenario does not contain path to the model");
+      return;
+    }
   }
 
   let targetPath: string | undefined = workspaceState?.get("targetmodelpath", undefined);
