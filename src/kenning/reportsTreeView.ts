@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { globSync } from 'glob';
 
-import { getWorkspaceDir, REPORT_NAME, REPORT_MD, REPORT_SUMMARY, REPORT_HTML, KChannel } from "../utils";
+import { getKenningWorkspaceDir, validatePath, REPORT_NAME, REPORT_MD, REPORT_SUMMARY, REPORT_HTML, KChannel } from "../utils";
 
 export class ReportsTreeDataProvider implements vscode.TreeDataProvider<BaseItemData> {
     private _onDidChangeTreeData = new vscode.EventEmitter<void | BaseItemData | BaseItemData[] | null | undefined>();
@@ -18,7 +18,7 @@ export class ReportsTreeDataProvider implements vscode.TreeDataProvider<BaseItem
      * @returns List of tree items representing reports
      */
     getRootChildren(): vscode.ProviderResult<ReportData[]> {
-      const workspaceDir = getWorkspaceDir();
+      const workspaceDir = getKenningWorkspaceDir();
       if (workspaceDir === undefined) {
         KChannel.show();
         KChannel.appendLine("Open workspace to find existing reports");
@@ -153,7 +153,8 @@ export class ModelData extends BaseItemData {
       this.collapsibleState = vscode.TreeItemCollapsibleState.None;
     }
     // Add tag enabling open config button
-    if (data.scenarioPath && fs.existsSync(data.scenarioPath)) {
+    const scenarioPath = validatePath(data.scenarioPath);
+    if (scenarioPath && fs.existsSync(scenarioPath)) {
       this.contextValue += ";openConfig;chooseModel";
     }
   }

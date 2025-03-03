@@ -5,7 +5,7 @@ import * as yaml from "js-yaml";
 
 import { ReportData, ModelData } from './reportsTreeView';
 import { ConfigurationViewProvider } from '../configuration/viewProvider';
-import { getWorkspaceDir, REPORT_NAME, REPORT_HTML, KChannel } from '../utils';
+import { getKenningWorkspaceDir, validatePath, REPORT_NAME, REPORT_HTML, KChannel } from '../utils';
 
 
 const styleOverrides = `
@@ -40,7 +40,7 @@ function replaceLinks(
 }
 
 export function openReport(report: ReportData) {
-  const workspaceDir = getWorkspaceDir();
+  const workspaceDir = getKenningWorkspaceDir();
   if (workspaceDir === undefined) {return;}
   const reportHtml = path.join(report.reportDirectory, REPORT_NAME, REPORT_HTML);
   if (!fs.existsSync(reportHtml)) {return;}
@@ -71,16 +71,19 @@ export function openReport(report: ReportData) {
 
 
 export function openConfiguration(model: ModelData) {
-	if (model.data.scenarioPath) {
-		vscode.workspace.openTextDocument(vscode.Uri.file(model.data.scenarioPath)).then(
-			doc => vscode.window.showTextDocument(doc)
-		);
-	}
+  const scenarioPath = validatePath(model.data.scenarioPath);
+  if (!scenarioPath || !fs.existsSync(scenarioPath)) {
+    KChannel.appendLine(`Scenario not found`);
+    return;
+  }
+	vscode.workspace.openTextDocument(vscode.Uri.file(scenarioPath)).then(
+		doc => vscode.window.showTextDocument(doc)
+	);
 }
 
 
 export async function chooseModel(model: ModelData, workspaceState: vscode.Memento | null, configurationProvider: ConfigurationViewProvider | null) {
-  const scenarioPath = model.data.scenarioPath;
+  const scenarioPath = validatePath(model.data.scenarioPath);
   if (!scenarioPath || !fs.existsSync(scenarioPath)) {
     KChannel.appendLine(`Scenario not found`);
     return;
@@ -105,6 +108,11 @@ export async function chooseModel(model: ModelData, workspaceState: vscode.Memen
       KChannel.appendLine("Scenario does not contain path to the model");
       return;
     }
+  }
+  modelPath = validatePath(modelPath);
+  if (modelPath === undefined) {
+    KChannel.appendLine("Cannot find model path");
+    return;
   }
 
   let targetPath: string | undefined = workspaceState?.get("targetmodelpath", undefined);
