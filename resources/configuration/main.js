@@ -59,7 +59,7 @@
     setStorageUpdater(platformField, 'platform');
     setStorageUpdater(timeLimitField, 'timelimit');
     setStorageUpdater(appSizeField, 'appsize');
-    setStorageUpdater(targetModelPath, 'targetmodelpath');
+    setStorageUpdater(targetModelPath, 'targetmodelpath', 'input');
 
     // Handle messages sent from the extension to the webview
     window.addEventListener('message', event => {

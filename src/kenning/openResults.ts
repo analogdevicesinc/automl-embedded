@@ -5,7 +5,7 @@ import * as yaml from "js-yaml";
 
 import { ReportData, ModelData } from './reportsTreeView';
 import { ConfigurationViewProvider } from '../configuration/viewProvider';
-import { getKenningWorkspaceDir, validatePath, REPORT_NAME, REPORT_HTML, KChannel } from '../utils';
+import { getWorkspaceDir, getKenningWorkspaceDir, validatePath, REPORT_NAME, REPORT_HTML, KChannel } from '../utils';
 
 
 const styleOverrides = `
@@ -132,6 +132,14 @@ export async function chooseModel(model: ModelData, workspaceState: vscode.Memen
   }
 
   if (targetPath) {
+    if (!path.isAbsolute(targetPath)) {
+      const workspaceDir = getWorkspaceDir();
+      if (workspaceDir === undefined){
+        vscode.window.showErrorMessage(`Cannot save model using relative path if no workspace is opened`);
+        return;
+      }
+      targetPath = path.join(workspaceDir, targetPath);
+    }
     if (fs.existsSync(targetPath)) {
       const stats = await fs.promises.lstat(targetPath);
       if (stats.isDirectory()) {
@@ -150,6 +158,7 @@ export async function chooseModel(model: ModelData, workspaceState: vscode.Memen
       }
     }
     fs.copyFileSync(modelPath, targetPath);
+    fs.copyFileSync(`${modelPath}.json`, `${targetPath}.json`);
     KChannel.appendLine(`Model saved to ${targetPath}`);
     vscode.window.showInformationMessage(`Model is saved to ${targetPath}`);
   }
