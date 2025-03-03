@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import { spawnSync } from 'child_process';
 import { runScenario } from '../kenning/runScenario';
+import { checkConfig } from './checkConfig';
 
 export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
 
@@ -50,6 +51,10 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     }
                     if (undefinedFields.length > 0) {
                         vscode.window.showErrorMessage(`Missing data in configuration (${undefinedFields.join(', ')})`);
+                        this.enableRunButton();
+                        break;
+                    }
+                    if (!checkConfig()) {
                         this.enableRunButton();
                         break;
                     }
