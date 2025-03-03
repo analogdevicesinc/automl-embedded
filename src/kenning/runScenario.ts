@@ -47,11 +47,11 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
     scenario.automl.parameters.time_limit = Number.parseFloat(timeLimit);
     scenario.automl.parameters.application_size = Number.parseFloat(appSize);
 
-    const absRunDir = path.join(path.dirname(workspaceDir), runDir);
+    const absRunDir = path.join(workspaceDir, runDir);
     mkdirSync(absRunDir, {recursive: true});
 
     writeFile(
-        path.join(path.dirname(workspaceDir), runScenarioPath),
+        path.join(workspaceDir, runScenarioPath),
         JSON.stringify(scenario, null, 4),
         err => {
             if (err) {
