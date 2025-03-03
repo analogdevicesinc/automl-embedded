@@ -76,6 +76,8 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
                     "--to-html",
                     "--save-summary",
                     "--allow-failures",
+                    "--comparison-only",
+                    "--skip-general-information",
                 ],
                 {
                     cwd: workspaceDir,
