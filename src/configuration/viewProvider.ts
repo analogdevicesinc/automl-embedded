@@ -3,7 +3,6 @@ import * as fs from "fs";
 import * as path from "path";
 import { spawnSync } from 'child_process';
 import { runScenario } from '../kenning/runScenario';
-import { KChannel } from '../utils';
 
 export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
 
@@ -161,11 +160,14 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
         const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'resources', 'configuration', 'main.css'));
 
         const elementsComponentsUri = vscode.Uri.joinPath(this._extensionUri, "resources", "elements-lite");
+        const codiconsComponentsUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "resources", "codicons", "codicon.css"));
         const includeElementsClasses: string[] = [];
         for (const cssClass of ["button", "textfield", "select", "label"]) {
             const cssUri = webview.asWebviewUri(vscode.Uri.joinPath(elementsComponentsUri, cssClass, `${cssClass}.css`));
             includeElementsClasses.push(`<link href="${cssUri}" rel="stylesheet">`);
         };
+
+        includeElementsClasses.push(`<link href="${codiconsComponentsUri}" rel="stylesheet">`);
 
         const platforms: [string, string][] = this.getKenningPlatforms();
         const platformOptions: string[] = [];
@@ -188,7 +190,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     and only allow scripts that have a specific nonce.
                     (See the 'webview-sample' extension sample for img-src content security policy examples)
                 -->
-                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
 
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -201,10 +203,10 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                 <div class="vscode-label">
                     <label for="kenning-configuration-dataset-path" class="normal pale">Dataset path</label>
                 </div>
-                <input id="kenning-configuration-dataset-path" class="vscode-textfield kenning-configuration-dataset-path" value="${this._workspaceState.get('datasetpath', '')}">
-                </br>
-                <button id="kenning-configuration-dataset-path-browse" class="vscode-button">Browse</button>
-                </br>
+                <div class="vscode-search vscode-form-container">
+                    <input id="kenning-configuration-dataset-path" class="vscode-textfield vscode-search-input kenning-configuration-dataset-path" value="${this._workspaceState.get('datasetpath', '')}">
+                    <button id="kenning-configuration-dataset-path-browse" class="vscode-button vscode-search-button codicon codicon-folder"/>
+                </div>
 
                 <div class="vscode-label">
                     <label for="kenning-configuration-platform" class="normal pale">Platform</label>
@@ -229,10 +231,10 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                 <div class="vscode-label">
                     <label for="kenning-configuration-app-size" class="normal pale">Selected model path</label>
                 </div>
-                <input id="kenning-configuration-target-model-path" class="vscode-textfield kenning-configuration-target-model-path" value="${this._workspaceState.get('targetmodelpath', '')}">
-                </br>
-                <button id="kenning-configuration-target-model-path-browse" class="vscode-button">Save To</button>
-                </br>
+                <div class="vscode-search">
+                    <input id="kenning-configuration-target-model-path" class="vscode-textfield vscode-search-input kenning-configuration-target-model-path" value="${this._workspaceState.get('targetmodelpath', '')}">
+                    <button id="kenning-configuration-target-model-path-browse" class="vscode-button vscode-search-button codicon codicon-folder"></button>
+                </div>
                 </br>
 
                 <button id="run-automl-button" type="button" class="vscode-button block">Run AutoML Optimization</button>

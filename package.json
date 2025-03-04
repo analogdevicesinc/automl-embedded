@@ -27,7 +27,7 @@
       {
         "command": "edge-automl-extension.openReport",
         "title": "Open generated report",
-        "icon": "$(open-preview)"
+        "icon": "$(kenning-report-summary)"
       },
       {
         "command": "edge-automl-extension.openConfiguration",
@@ -102,6 +102,29 @@
           "group": "inline"
         }
       ]
+    },
+    "icons": {
+      "kenning-session": {
+        "description": "Kenning session icon",
+        "default": {
+          "fontPath": "./resources/icons.woff",
+          "fontCharacter": "0"
+        }
+      },
+      "kenning-model": {
+        "description": "Kenning model icon",
+        "default": {
+          "fontPath": "./resources/icons.woff",
+          "fontCharacter": "1"
+        }
+      },
+      "kenning-report-summary": {
+        "description": "Kenning report summary icon",
+        "default": {
+          "fontPath": "./resources/icons.woff",
+          "fontCharacter": "2"
+        }
+      }
     }
   },
   "scripts": {
@@ -125,6 +148,7 @@
     "@types/vscode": "^1.96.0",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
+    "@vscode/codicons": "^0.0.36",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "esbuild": "^0.24.2",

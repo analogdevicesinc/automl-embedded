@@ -121,7 +121,7 @@ export class ReportData extends BaseItemData {
   }
 
   contextValue = "reportData";
-  iconPath = new vscode.ThemeIcon("notebook-kernel-select");
+  iconPath = new vscode.ThemeIcon("kenning-session");
 }
 
 
@@ -160,5 +160,5 @@ export class ModelData extends BaseItemData {
   }
 
   contextValue = "modelData";
-  iconPath = new vscode.ThemeIcon("chip");
+  iconPath = new vscode.ThemeIcon("kenning-model");
 }

@@ -34,6 +34,17 @@ async function main() {
 		bundle: true,
 		outdir: "resources/elements-lite"
 	});
+	await esbuild.build({
+		entryPoints: [
+			'@vscode/codicons/dist/codicon.ttf',
+			'@vscode/codicons/dist/codicon.css'
+		],
+		bundle: true,
+		loader: {
+    		    '.ttf': 'file'
+		},
+		outdir: "resources/codicons"
+	});
 	const ctx = await esbuild.context({
 		entryPoints: [
 			'src/extension.ts'

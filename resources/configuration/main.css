@@ -51,3 +51,33 @@ body {
 	/* max width commonly used by elements-lite */
 	max-width: 320px;
 }
+
+.vscode-search {
+    display: flex;
+    flex-direction: row;
+}
+
+.vscode-search-input {
+    width: 100% !important;
+    border-bottom-right-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+
+.vscode-search-button {
+    padding-inline: 6px !important;
+    width: 2em;
+    border-bottom-left-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+}
+
+.vscode-textfield {
+    width: 100% !important;
+}
+
+.vscode-select {
+    width: 100% !important;
+}
+
+.vscode-button.block {
+    max-width: 100%;
+}
