@@ -37,10 +37,9 @@ export const AUTOML_SCENARIO_TEMPLATE = {
         {
             dataset_root: "",
             csv_file: "",
-            reduce_dataset: 0.0024,
             inference_batch_size: 1,
             split_seed: 12345,
-            split_fraction_test: 0.05,
+            split_fraction_test: 0.1,
         }
     },
     optimizers:

@@ -117,7 +117,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     dataset: this._workspaceState.get('datasetpath', ''),
                     platform: this._workspaceState.get("platform", "MAX32690 Evaluation Kit"),
                     timeLimit: this._workspaceState.get('timelimit', '10'),
-                    appSize: this._workspaceState.get('appsize', '74'),
+                    appSize: this._workspaceState.get('appsize', '75.5'),
                     targetModelPath: this._workspaceState.get('targetmodelpath', ''),
                 });
             }

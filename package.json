@@ -19,7 +19,7 @@
         "kenning-edge-automl.kenningZephyrRuntimePath": {
           "type": "string",
           "description": "Path to the Kenning Zephyr Runtime repository",
-          "default": "/opt/zephyr-workspace/kenning-zephyr-runtime/"
+          "default": "/workspaces/kenning-zephyr-runtime-example-app/kenning-zephyr-runtime/"
         }
       }
     },
