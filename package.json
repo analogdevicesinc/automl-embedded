@@ -20,6 +20,11 @@
           "type": "string",
           "description": "Path to the Kenning Zephyr Runtime repository",
           "default": "/workspaces/kenning-zephyr-runtime-example-app/kenning-zephyr-runtime/"
+        },
+        "kenning-edge-automl.simulate": {
+          "type": "boolean",
+          "description": "Evaluate models on board simulated with Renode",
+          "default": true
         }
       }
     },
@@ -161,6 +166,7 @@
     "@vscode-elements/elements-lite": "^0.3.0",
     "glob": "^11.0.1",
     "js-yaml": "^4.1.0",
+    "pnpm": "^10.6.2",
     "vsce": "^2.15.0"
   }
 }
