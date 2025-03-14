@@ -38,6 +38,7 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
     scenario.platform.type = "ZephyrPlatform";
     // Local platform does not have name parameter
     scenario.platform.parameters = { name: platform, simulated: pluginConfig.get("simulate") };
+    scenario.automl.parameters.n_best_models = pluginConfig.get("numberOfOutputModels") ?? scenario.automl.parameters.n_best_models;
     scenario.runtime_builder.parameters.output_path = runZephyrOutputPath;
     scenario.runtime_builder.parameters.workspace = pluginConfig.get("kenningZephyrRuntimePath") ?? scenario.runtime_builder.parameters.workspace;
     scenario.dataset.parameters.csv_file = datasetPath;

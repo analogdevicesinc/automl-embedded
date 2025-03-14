@@ -25,6 +25,11 @@
           "type": "boolean",
           "description": "Evaluate models on board simulated with Renode",
           "default": true
+        },
+        "kenning-edge-automl.numberOfOutputModels": {
+          "type": "integer",
+          "description": "Maximal number of model candidates to include in the final evaluation",
+          "default": 5
         }
       }
     },
