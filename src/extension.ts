@@ -5,6 +5,7 @@ import * as vscode from 'vscode';
 import { ReportsTreeDataProvider, ReportData, ModelData } from './kenning/reportsTreeView';
 import { openReport, openConfiguration, chooseModel } from './kenning/openResults'; 
 import { ConfigurationViewProvider } from './configuration/viewProvider';
+import { Memento } from './utils';
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -40,9 +41,10 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(openConfCmd);
 
         const configurationProvider = new ConfigurationViewProvider(context);
+        const workspaceState: Memento = context.workspaceState;
 	const chooseModelCmd = vscode.commands.registerCommand(
 		"edge-automl-extension.chooseModel",
-		(model: ModelData) => chooseModel(model, context.workspaceState, configurationProvider),
+		(model: ModelData) => chooseModel(model, workspaceState, configurationProvider),
 	);
 	context.subscriptions.push(chooseModelCmd);
 

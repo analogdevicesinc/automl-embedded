@@ -1,9 +1,14 @@
 import * as vscode from 'vscode';
 import * as fs from "fs";
 import * as path from "path";
-import { spawnSync } from 'child_process';
+import { spawnSync } from 'node:child_process';
 import { runScenario } from '../kenning/runScenario';
 import { checkConfig } from './checkConfig';
+import { WebviewState, MessageTypeIn, MessageTypeOut, IDS } from './messageTypes';
+import { Memento } from '../utils';
+
+import cssContent from "./resources/main.module.scss?inline";
+import cssClasses from "./resources/main.module.scss";
 
 export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
 
@@ -12,13 +17,28 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
 
     private readonly _extensionUri: vscode.Uri;
-    private _workspaceState: vscode.Memento;
+    private _workspaceState: Memento;
 
     constructor(
         _extensionContext: vscode.ExtensionContext,
     ) {
         this._extensionUri = _extensionContext.extensionUri;
         this._workspaceState = _extensionContext.workspaceState;
+    }
+
+    private _postMessage(message: MessageTypeIn) {
+        if (!this._view) {
+            return;
+        }
+        this._view.webview.postMessage(message);
+    }
+
+    private _getState(key: keyof WebviewState, defValue: string | undefined = undefined) {
+        return this._workspaceState.get(key, defValue);
+    }
+
+    private _updateState(key: keyof WebviewState, value: string) {
+        return this._workspaceState.update(key, value);
     }
 
     public resolveWebviewView(
@@ -39,14 +59,16 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
 
         webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-        webviewView.webview.onDidReceiveMessage(data => {
+        webviewView.webview.onDidReceiveMessage((data: MessageTypeOut) => {
             console.log(`Received ${JSON.stringify(data)}`);
             switch (data.type) {
-                case 'runAutoML': {
+                case "runAutoML": {
                     const undefinedFields: string[] = [];
-                    for (const field of ["platform", "datasetPath", "timeLimit", "appSize"]) {
-                        if (!data[field]) {
-                            undefinedFields.push(field);
+                    for (const [key, value] of Object.entries(data)) {
+                        console.log(`Check key ${key}`);
+                        if (!value) {
+                            console.log(`${key} undef ${value}`);
+                            undefinedFields.push(key);
                         }
                     }
                     if (undefinedFields.length > 0) {
@@ -58,10 +80,10 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                         this.enableRunButton();
                         break;
                     }
-                    runScenario(this, data.platform, data.datasetPath, data.timeLimit, data.appSize);
+                    runScenario(this, data.platform!, data.datasetPath!, data.timeLimit!, data.appSize!);
                     break;
                 }
-                case 'browseDataset': {
+                case "browseDataset": {
                     vscode.window.showOpenDialog({
                         openLabel: "Select dataset",
                         canSelectFiles: true,
@@ -72,15 +94,13 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                         },
                     }).then((fileUri) => {
                         if (fileUri && fileUri[0]) {
-                            if (this._view) {
-                                this._view.webview.postMessage({type: "setDatasetPath", value: fileUri[0].fsPath});
-                            }
-                            this._workspaceState.update('datasetpath', fileUri[0].fsPath);
+                            this._postMessage({type: "setDatasetPath", value: fileUri[0].fsPath});
+                            this._updateState("datasetPath", fileUri[0].fsPath);
                         }
                     });
                     break;
                 }
-                case 'browseTargetModelPath': {
+                case "browseTargetModelPath": {
                     vscode.window.showSaveDialog({
                         title: "Save selected models as",
                     }).then(async (fileUri) => {
@@ -89,21 +109,20 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                             if (!fs.existsSync(targetDir)) {
                                 await fs.promises.mkdir(targetDir, {recursive: true});
                             }
-                            if (this._view) {
-                                this._view.webview.postMessage({type: "setTargetModelPath", value: fileUri.fsPath});
-                            }
-                            this._workspaceState.update('targetmodelpath', fileUri.fsPath);
+                            this._postMessage({type: "setTargetModelPath", value: fileUri.fsPath});
+                            this._updateState('targetModelPath', fileUri.fsPath);
                         }
                     });
                     break;
                 }
-                case 'updateField': {
-                    this._workspaceState.update(data.name, data.value);
+                case "updateField": {
+                    this._updateState(data.name, data.value);
                     break;
                 }
-                case 'getField': {
-                    if (this._view){
-                        this._view.webview.postMessage({type: "getField", elementName: data.elementName, value: this._workspaceState.get(data.storageName)});
+                case "getField": {
+                    const value = this._getState(data.storageName);
+                    if (value) {
+                        this._postMessage({type: "getField", elementName: data.elementName, value});
                     }
                     break;
                 }
@@ -112,13 +131,13 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
 
         webviewView.onDidChangeVisibility(() => {
             if (this._view && this._view.visible) {
-                this._view.webview.postMessage({
+                this._postMessage({
                     type: "restoreState",
-                    dataset: this._workspaceState.get('datasetpath', ''),
-                    platform: this._workspaceState.get("platform", "MAX32690 Evaluation Kit"),
-                    timeLimit: this._workspaceState.get('timelimit', '10'),
-                    appSize: this._workspaceState.get('appsize', '75.5'),
-                    targetModelPath: this._workspaceState.get('targetmodelpath', ''),
+                    datasetPath: this._getState("datasetPath", ""),
+                    platform: this._getState("platform", "MAX32690 Evaluation Kit"),
+                    timeLimit: this._getState("timeLimit", "10"),
+                    appSize: this._getState("appSize", "80"),
+                    targetModelPath: this._getState("targetModelPath", ""),
                 });
             }
         });
@@ -146,44 +165,36 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
         if (this._view) {
             // Get platforms from Kenning
             const platforms = this.getKenningPlatforms();
-            this._view.webview.postMessage({ type: 'updateConfiguration', platforms: platforms });
+            this._postMessage({ type: "updateConfiguration", platforms: platforms });
             console.log(`sent message to webview ${platforms}`);
         }
     }
 
     public enableRunButton() {
-        if (this._view) {
-            this._view.webview.postMessage({type: "enableButton"});
-        }
+        this._postMessage({type: "enableButton"});
     }
 
     private _getHtmlForWebview(webview: vscode.Webview) {
         // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
-        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'resources', 'configuration', 'main.js'));
-
-        // Do the same for the stylesheet.
-        const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'resources', 'configuration', 'main.css'));
-
-        const elementsComponentsUri = vscode.Uri.joinPath(this._extensionUri, "resources", "elements-lite");
-        const codiconsComponentsUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "resources", "codicons", "codicon.css"));
-        const includeElementsClasses: string[] = [];
-        for (const cssClass of ["button", "textfield", "select", "label"]) {
-            const cssUri = webview.asWebviewUri(vscode.Uri.joinPath(elementsComponentsUri, cssClass, `${cssClass}.css`));
-            includeElementsClasses.push(`<link href="${cssUri}" rel="stylesheet">`);
-        };
-
-        includeElementsClasses.push(`<link href="${codiconsComponentsUri}" rel="stylesheet">`);
+        const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "configuration", "resources", "main.js"));
 
         const platforms: [string, string][] = this.getKenningPlatforms();
         const platformOptions: string[] = [];
         for (const platform of platforms) {
             platformOptions.push(
-                `<option value="${platform[1]}" ${platform[1] === this._workspaceState.get("platform", "MAX32690 Evaluation Kit") ? 'selected' : ''}>${platform[0]}</option>`
+                `<option value="${platform[1]}" ${platform[1] === this._getState("platform", "MAX32690 Evaluation Kit") ? 'selected' : ''}>${platform[0]}</option>`
             );
         }
 
         // Use a nonce to only allow a specific script to be run.
-        const nonce = getNonce();
+        const scriptNonce = getNonce();
+        const stypeNonce = getNonce();
+
+        // Predefine classes for fields and buttons
+        const labelClasses = `${cssClasses.normal} ${cssClasses.pale}`;
+        const inputClasses = `${cssClasses['vscode-textfield']} ${cssClasses['vscode-search-input']}`;
+        const numberInputClasses = `${cssClasses['vscode-textfield']}`;
+        const inputButtonClasses = `${cssClasses['vscode-button']} ${cssClasses['vscode-search-button']} ${cssClasses['codicon']} ${cssClasses['codicon-folder']}`;
 
         return `<!DOCTYPE html>
             <html lang="en">
@@ -195,57 +206,56 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     and only allow scripts that have a specific nonce.
                     (See the 'webview-sample' extension sample for img-src content security policy examples)
                 -->
-                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+                <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src data:; style-src 'nonce-${stypeNonce}'; script-src 'nonce-${scriptNonce}';">
 
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-                ${includeElementsClasses.join("\n")}
-                <link href="${styleMainUri}" rel="stylesheet">
+                <style nonce="${stypeNonce}">${cssContent}</style>
 
                 <title>Kenning AutoML Configuration</title>
             </head>
             <body>
-                <div class="vscode-label">
-                    <label for="kenning-configuration-dataset-path" class="normal pale">Dataset path</label>
+                <div class="${cssClasses['vscode-label']}">
+                    <label for="${IDS.datasetPath}" class="${labelClasses}">Dataset path</label>
                 </div>
-                <div class="vscode-search vscode-form-container">
-                    <input id="kenning-configuration-dataset-path" class="vscode-textfield vscode-search-input kenning-configuration-dataset-path" value="${this._workspaceState.get('datasetpath', '')}">
-                    <button id="kenning-configuration-dataset-path-browse" class="vscode-button vscode-search-button codicon codicon-folder"/>
+                <div class="${cssClasses['vscode-search']} ${cssClasses['vscode-form-container']}">
+                    <input id="${IDS.datasetPath}" class="${inputClasses}" value="${this._getState('datasetPath', '')}">
+                    <button id="${IDS.datasetButton}" class="${inputButtonClasses}"></button>
                 </div>
 
-                <div class="vscode-label">
-                    <label for="kenning-configuration-platform" class="normal pale">Platform</label>
+                <div class="${cssClasses['vscode-label']}">
+                    <label for="${IDS.platform}" class="${labelClasses}">Platform</label>
                 </div>
-                <div class="vscode-select">
-                    <select id="kenning-configuration-platform" class="kenning-configuration-platform">
+                <div class="${cssClasses['vscode-select']}">
+                    <select id="${IDS.platform}" class="${cssClasses['kenning-configuration-platform']}">
                         ${platformOptions.join("\n")}
                     </select>
                 </div>
 
-                <div class="vscode-label">
-                    <label for="kenning-configuration-time-limit" class="normal pale">Time limit for AutoML (in minutes)</label>
+                <div class="${cssClasses['vscode-label']}">
+                    <label for="${IDS.timeLimit}" class="${labelClasses}">Time limit for AutoML (in minutes)</label>
                 </div>
-                <input type="number" step="0.1" id="kenning-configuration-time-limit" class="vscode-textfield kenning-configuration-time-limit" value="${this._workspaceState.get('timelimit', '10')}"/>
+                <input type="number" step="0.1" id="${IDS.timeLimit}" class="${numberInputClasses}" value="${this._getState('timeLimit', '10')}"/>
                 </br>
 
-                <div class="vscode-label">
-                    <label for="kenning-configuration-app-size" class="normal pale">Application size (in KB)</label>
+                <div class="${cssClasses['vscode-label']}">
+                    <label for="${IDS.appSize}" class="${labelClasses}">Application size (in KB)</label>
                 </div>
-                <input type="number" step="0.1" id="kenning-configuration-app-size" class="vscode-textfield kenning-configuration-time-limit" value="${this._workspaceState.get('appsize', '74')}"/>
+                <input type="number" step="0.1" id="${IDS.appSize}" class="${numberInputClasses}" value="${this._getState('appSize', '80')}"/>
                 </br>
-                <div class="vscode-label">
-                    <label for="kenning-configuration-app-size" class="normal pale">Selected model path</label>
+                <div class="${cssClasses['vscode-label']}">
+                    <label for="${IDS.targetPath}" class="${labelClasses}">Selected model path</label>
                 </div>
-                <div class="vscode-search">
-                    <input id="kenning-configuration-target-model-path" class="vscode-textfield vscode-search-input kenning-configuration-target-model-path" value="${this._workspaceState.get('targetmodelpath', '')}">
-                    <button id="kenning-configuration-target-model-path-browse" class="vscode-button vscode-search-button codicon codicon-folder"></button>
+                <div class="${cssClasses['vscode-search']}">
+                    <input id="${IDS.targetPath}" class="${inputClasses}" value="${this._getState('targetModelPath', '')}">
+                    <button id="${IDS.targetPathButton}" class="${inputButtonClasses}"></button>
                 </div>
-                </br>
-
-                <button id="run-automl-button" type="button" class="vscode-button block">Run AutoML Optimization</button>
                 </br>
 
-                <script nonce="${nonce}" src="${scriptUri}"></script>
+                <button id="${IDS.automlButton}" type="button" class="${cssClasses['vscode-button']} ${cssClasses.block}">Run AutoML Optimization</button>
+                </br>
+
+                <script nonce="${scriptNonce}" src="${scriptUri}"></script>
             </body>
             </html>`;
     }

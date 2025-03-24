@@ -5,7 +5,7 @@ import * as yaml from "js-yaml";
 
 import { ReportData, ModelData } from './reportsTreeView';
 import { ConfigurationViewProvider } from '../configuration/viewProvider';
-import { getWorkspaceDir, getKenningWorkspaceDir, validatePath, REPORT_NAME, REPORT_HTML, KChannel } from '../utils';
+import { getWorkspaceDir, getKenningWorkspaceDir, validatePath, REPORT_NAME, REPORT_HTML, KChannel, Memento } from '../utils';
 
 
 const styleOverrides = `
@@ -82,7 +82,7 @@ export function openConfiguration(model: ModelData) {
 }
 
 
-export async function chooseModel(model: ModelData, workspaceState: vscode.Memento | null, configurationProvider: ConfigurationViewProvider | null) {
+export async function chooseModel(model: ModelData, workspaceState: Memento | null, configurationProvider: ConfigurationViewProvider | null) {
   const scenarioPath = validatePath(model.data.scenarioPath);
   if (!scenarioPath || !fs.existsSync(scenarioPath)) {
     KChannel.appendLine(`Scenario not found`);
@@ -115,7 +115,7 @@ export async function chooseModel(model: ModelData, workspaceState: vscode.Memen
     return;
   }
 
-  let targetPath: string | undefined = workspaceState?.get("targetmodelpath", undefined);
+  let targetPath: string | undefined = workspaceState?.get("targetModelPath", undefined);
   if (targetPath === undefined || targetPath === "") {
     const uri = await vscode.window.showSaveDialog({
       title: "Save selected model as",
@@ -123,7 +123,7 @@ export async function chooseModel(model: ModelData, workspaceState: vscode.Memen
     if (uri !== undefined) {
       targetPath = uri.fsPath;
       if (workspaceState) {
-        await workspaceState.update('targetmodelpath', targetPath);
+        await workspaceState.update('targetModelPath', targetPath);
         if (configurationProvider) {
             configurationProvider.refreshConfiguration();
         }

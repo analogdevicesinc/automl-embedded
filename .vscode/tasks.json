@@ -1,13 +1,12 @@
 // See https://go.microsoft.com/fwlink/?LinkId=733558
 // for the documentation about the tasks.json format
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
+    "version": "2.0.0",
+    "tasks": [
+        {
             "label": "watch",
             "dependsOn": [
-                "npm: watch:tsc",
-                "npm: watch:esbuild"
+                "yarn: watch:extension",
             ],
             "presentation": {
                 "reveal": "never"
@@ -18,47 +17,55 @@
             }
         },
         {
-            "type": "npm",
-            "script": "watch:esbuild",
-            "group": "build",
-            "problemMatcher": "$esbuild-watch",
+            "label": "yarn: watch:extension",
+            "type": "shell",
+            "command": "yarn watch:extension",
+            "detail": "yarn watch:extension",
             "isBackground": true,
-            "label": "npm: watch:esbuild",
+            "problemMatcher": [
+                {
+                    "owner": "typescript",
+                    "source": "Typescript",
+                    "fileLocation": "absolute",
+                    "applyTo": "allDocuments",
+                    "pattern": [
+                        {
+                            "regexp": "(ERROR|WARNING)\\(TypeScript\\)  (.*)",
+                            "severity": 1,
+                            "message": 2
+                        },
+                        {
+                            "regexp": "^ FILE  (.*):(\\d*):(\\d*)$",
+                            "file": 1,
+                            "line": 2,
+                            "column": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "build started\\.\\.\\.",
+                        "endsPattern": "built in .*\\."
+                    }
+                }
+            ],
             "presentation": {
                 "group": "watch",
                 "reveal": "never"
             }
         },
-		{
-            "type": "npm",
-            "script": "watch:tsc",
-            "group": "build",
-            "problemMatcher": "$tsc-watch",
-            "isBackground": true,
-            "label": "npm: watch:tsc",
-            "presentation": {
-                "group": "watch",
-                "reveal": "never"
-            }
-        },
-		{
-			"type": "npm",
-			"script": "watch-tests",
-			"problemMatcher": "$tsc-watch",
-			"isBackground": true,
-			"presentation": {
-				"reveal": "never",
-				"group": "watchers"
-			},
-			"group": "build"
-		},
-		{
-			"label": "tasks: watch-tests",
-			"dependsOn": [
-				"npm: watch",
-				"npm: watch-tests"
-			],
-			"problemMatcher": []
-		}
-	]
+        {
+            "label": "postDebugCleanup",
+            "type": "shell",
+            "command": "echo ${input:termianteWatch}",
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "termianteWatch",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "yarn: watch:extension"
+        }
+    ]
 }

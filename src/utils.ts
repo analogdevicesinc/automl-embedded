@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
+import { WebviewState } from './configuration/messageTypes';
+
 export const REPORT_NAME = "report";
 export const REPORT_MD = `${REPORT_NAME}.md`;
 export const REPORT_HTML = `${REPORT_NAME}.html`;
@@ -35,4 +37,14 @@ export function validatePath(p: string | null | undefined): string | undefined {
         return path.join(workspaceDir, p);
     }
     return p;
+}
+
+
+/**
+ * Interface defining worksapce state with restricted keys
+ */
+export interface Memento extends vscode.Memento {
+		get<T>(key: keyof WebviewState): T | undefined;
+		get<T>(key: keyof WebviewState, defaultValue: T): T;
+		update(key: keyof WebviewState, value: any): Thenable<void>;
 }

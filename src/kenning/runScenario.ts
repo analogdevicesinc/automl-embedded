@@ -1,4 +1,4 @@
-import { spawn } from "child_process";
+import { spawn } from "node:child_process";
 import * as vscode from 'vscode';
 import { mkdirSync, writeFile } from "fs";
 import { AUTOML_SCENARIO_TEMPLATE } from "./autoMLScenarioTemplate";

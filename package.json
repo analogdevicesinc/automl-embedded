@@ -5,13 +5,13 @@
   "description": "Extension for deploying tailored models on Edge platforms using AutoML and Neural Architecture Search techniques",
   "version": "0.0.1",
   "engines": {
-    "vscode": "^1.96.0"
+    "vscode": "^1.89.0"
   },
   "categories": [
     "Other"
   ],
   "activationEvents": [],
-  "main": "./dist/extension.js",
+  "main": "./out/extension.cjs",
   "contributes": {
     "configuration": {
       "title": "Kenning Edge AutoML",
@@ -137,42 +137,50 @@
       }
     }
   },
+  "type": "module",
   "scripts": {
-    "vscode:prepublish": "pnpm run package",
-    "compile": "pnpm run check-types && pnpm run lint && node esbuild.js",
+    "vscode:prepublish": "yarn run package",
+    "compile": "yarn run check-types && yarn run lint && yarn build:extension",
     "watch": "npm-run-all -p watch:*",
-    "watch:esbuild": "node esbuild.js --watch",
-    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "pnpm run check-types && pnpm run lint && node esbuild.js --production",
+    "package": "yarn run check-types && yarn run lint && yarn build:extension",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "pnpm run compile-tests && pnpm run compile && pnpm run lint",
+    "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
     "check-types": "tsc --noEmit",
-    "vsix-package": "vsce package",
+    "vsix-package": "vsce package --yarn --dependencies",
     "lint": "eslint src --fix",
-    "test": "vscode-test"
+    "test": "vscode-test",
+    "vite:extension": "vite build --mode extension",
+    "watch:extension": "yarn vite:extension --watch",
+    "build:extension": "yarn vite:extension"
   },
   "devDependencies": {
+    "@types/browserify": "^12.0.40",
+    "@types/glob": "^8.1.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/mocha": "^10.0.10",
     "@types/node": "20.x",
-    "@types/vscode": "^1.96.0",
+    "@types/vscode": "^1.89.0",
+    "@types/vscode-webview": "^1.57.5",
     "@typescript-eslint/eslint-plugin": "^8.22.0",
     "@typescript-eslint/parser": "^8.22.0",
     "@vscode/codicons": "^0.0.36",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^3.3.0",
+    "browserify": "^17.0.1",
     "esbuild": "^0.24.2",
     "eslint": "^9.19.0",
     "npm-run-all": "^4.1.5",
-    "pnpm": "^10.6.2",
-    "typescript": "^5.7.3"
+    "sass-embedded": "^1.86.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.2.2",
+    "vite-tsconfig-paths": "^5.1.4",
+    "yarn": "^1.22.22"
   },
   "dependencies": {
-    "@types/js-yaml": "^4.0.9",
     "@vscode-elements/elements-lite": "^0.3.0",
     "glob": "^11.0.1",
-    "js-yaml": "^4.1.0",
-    "pnpm": "^10.6.2",
-    "vsce": "^2.15.0"
+    "js-yaml": "^4.1.0"
   }
 }
