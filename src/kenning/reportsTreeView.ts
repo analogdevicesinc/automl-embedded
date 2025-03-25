@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as vscode from 'vscode';
 import { globSync } from 'glob';
 
 import { getKenningWorkspaceDir, validatePath, REPORT_NAME, REPORT_MD, REPORT_SUMMARY, REPORT_HTML, KChannel } from "../utils";
@@ -10,7 +10,7 @@ export class ReportsTreeDataProvider implements vscode.TreeDataProvider<BaseItem
     onDidChangeTreeData?: vscode.Event<void | BaseItemData | BaseItemData[] | null | undefined> = this._onDidChangeTreeData.event;
 
     getTreeItem(element: BaseItemData): vscode.TreeItem | Thenable<vscode.TreeItem> {
-      return element;
+        return element;
     }
 
     /**
@@ -18,26 +18,26 @@ export class ReportsTreeDataProvider implements vscode.TreeDataProvider<BaseItem
      * @returns List of tree items representing reports
      */
     getRootChildren(): vscode.ProviderResult<ReportData[]> {
-      const workspaceDir = getKenningWorkspaceDir();
-      if (workspaceDir === undefined) {
-        KChannel.show();
-        KChannel.appendLine("Open workspace to find existing reports");
-        return;
-      }
+        const workspaceDir = getKenningWorkspaceDir();
+        if (workspaceDir === undefined) {
+            KChannel.show();
+            KChannel.appendLine("Open workspace to find existing reports");
+            return;
+        }
 
-      const reports: ReportData[] = [];
-      // Find all report files matching the given pattern
-      const foundReports = globSync(path.join(workspaceDir, "*", REPORT_NAME, REPORT_MD));
-      for (const reportPath of foundReports) {
-        const reportDir = path.normalize(path.join(reportPath ,".."));
-        const reportSummary = path.join(reportDir, REPORT_SUMMARY);
-        reports.push(new ReportData(
-          path.basename(path.dirname(reportDir)),
-          reportDir,
-          (fs.existsSync(reportSummary)) ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
-        ));
-      }
-      return reports;
+        const reports: ReportData[] = [];
+        // Find all report files matching the given pattern
+        const foundReports = globSync(path.join(workspaceDir, "*", REPORT_NAME, REPORT_MD));
+        for (const reportPath of foundReports) {
+            const reportDir = path.normalize(path.join(reportPath ,".."));
+            const reportSummary = path.join(reportDir, REPORT_SUMMARY);
+            reports.push(new ReportData(
+                path.basename(path.dirname(reportDir)),
+                reportDir,
+                (fs.existsSync(reportSummary)) ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.None,
+            ));
+        }
+        return reports;
     }
 
     /**
@@ -46,17 +46,17 @@ export class ReportsTreeDataProvider implements vscode.TreeDataProvider<BaseItem
      * @returns List of tree items representing models
      */
     getReportChildren(report: ReportData): vscode.ProviderResult<ModelData[]> {
-      const reportSummary = path.join(report.reportDirectory, REPORT_SUMMARY);
-      if (!fs.existsSync(reportSummary)) {
-        return;
-      }
-      // Read summary file and create according items
-      const modelsMetrics = require(reportSummary) as ReportSummary;
-      const modelItems: ModelData[] = [];
-      for (const modelSummary of modelsMetrics) {
-        modelItems.push(new ModelData(modelSummary.modelName, report, modelSummary, "", "", vscode.TreeItemCollapsibleState.Collapsed));
-      }
-      return modelItems;
+        const reportSummary = path.join(report.reportDirectory, REPORT_SUMMARY);
+        if (!fs.existsSync(reportSummary)) {
+            return;
+        }
+        // Read summary file and create according items
+        const modelsMetrics = JSON.parse(fs.readFileSync(reportSummary, 'utf-8')) as ReportSummary;
+        const modelItems: ModelData[] = [];
+        for (const modelSummary of modelsMetrics) {
+            modelItems.push(new ModelData(modelSummary.modelName, report, modelSummary, "", "", vscode.TreeItemCollapsibleState.Collapsed));
+        }
+        return modelItems;
     }
 
     /**
@@ -65,70 +65,70 @@ export class ReportsTreeDataProvider implements vscode.TreeDataProvider<BaseItem
      * @returns List of tree items representing model metrics
      */
     getModelChildren(model: ModelData): vscode.ProviderResult<BaseItemData[]> {
-      const metricsItems: BaseItemData[] = [];
-      for (const metric of model.data.metrics) {
+        const metricsItems: BaseItemData[] = [];
+        for (const metric of model.data.metrics) {
         // Skip non-classification metrics
-        if (metric.type !== "classification") {continue;}
-        metricsItems.push(new BaseItemData(metric.name, `${metric.name}: ${metric.value}`, metric.value.toString(), vscode.TreeItemCollapsibleState.None));
-      }
-      return metricsItems;
+            if (metric.type !== "classification") {continue;}
+            metricsItems.push(new BaseItemData(metric.name, `${metric.name}: ${metric.value}`, metric.value.toString(), vscode.TreeItemCollapsibleState.None));
+        }
+        return metricsItems;
     }
 
-    getChildren(element?: BaseItemData | undefined): vscode.ProviderResult<BaseItemData[]> {
-      // Creating childs of report - searching for models
-      if (element instanceof ReportData) {
-        return this.getReportChildren(element);
-      }
+    getChildren(element?: BaseItemData  ): vscode.ProviderResult<BaseItemData[]> {
+        // Creating children of report - searching for models
+        if (element instanceof ReportData) {
+            return this.getReportChildren(element);
+        }
 
-      // Creating childs of models - searching for metrics
-      if (element instanceof ModelData) {
-        return this.getModelChildren(element);
-      }
+        // Creating children of models - searching for metrics
+        if (element instanceof ModelData) {
+            return this.getModelChildren(element);
+        }
 
-      // element not provided - searching for reports
-      return this.getRootChildren();
+        // element not provided - searching for reports
+        return this.getRootChildren();
     }
 
     refresh() {
-      this._onDidChangeTreeData.fire(undefined);
+        this._onDidChangeTreeData.fire(undefined);
     }
 }
 
 class BaseItemData extends vscode.TreeItem {
-  constructor(
+    constructor(
     public readonly label: string,
     public readonly tooltip: string,
     public readonly description: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-  ) {
-    super(label, collapsibleState);
-  }
+    ) {
+        super(label, collapsibleState);
+    }
 }
 
 export class ReportData extends BaseItemData {
-  constructor(
+    constructor(
     public readonly label: string,
     public readonly reportDirectory: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-  ) {
-    super(
-      label, "REPORT", path.normalize(path.join(reportDirectory, "..")),  collapsibleState
-    );
-    // Add tag enabling open report button
-    if (fs.existsSync(path.join(reportDirectory, REPORT_NAME, REPORT_HTML))) {
-      this.contextValue += ";openReport";
+    ) {
+        super(
+            label, "REPORT", path.normalize(path.join(reportDirectory, "..")),  collapsibleState,
+        );
+        // Add tag enabling open report button
+        if (fs.existsSync(path.join(reportDirectory, REPORT_NAME, REPORT_HTML))) {
+            this.contextValue += ";openReport";
+        }
     }
-  }
 
-  contextValue = "reportData";
-  iconPath = new vscode.ThemeIcon("kenning-session");
+    contextValue = "reportData";
+    iconPath = new vscode.ThemeIcon("kenning-session");
 }
 
 
 /**
  * Type representing format of model description from Kenning report summary JSON
  */
-type ModelSummary = {
+interface ModelSummary {
   modelName: string,
   scenarioPath: string | null | undefined,
   metrics: { type: string, name: string, value: number }[],
@@ -139,26 +139,26 @@ type ModelSummary = {
 type ReportSummary = ModelSummary[];
 
 export class ModelData extends BaseItemData {
-  constructor(
+    constructor(
     public readonly label: string,
     public readonly report: ReportData,
     public readonly data: ModelSummary,
     public readonly tooltip: string,
     public readonly description: string,
     public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-  ) {
-    super(label, tooltip, description, collapsibleState);
-    // Disable collapsibility if no metric is available
-    if (data.metrics.length === 0) {
-      this.collapsibleState = vscode.TreeItemCollapsibleState.None;
+    ) {
+        super(label, tooltip, description, collapsibleState);
+        // Disable collapsibility if no metric is available
+        if (data.metrics.length === 0) {
+            this.collapsibleState = vscode.TreeItemCollapsibleState.None;
+        }
+        // Add tag enabling open config button
+        const scenarioPath = validatePath(data.scenarioPath);
+        if (scenarioPath && fs.existsSync(scenarioPath)) {
+            this.contextValue += ";openConfig;chooseModel";
+        }
     }
-    // Add tag enabling open config button
-    const scenarioPath = validatePath(data.scenarioPath);
-    if (scenarioPath && fs.existsSync(scenarioPath)) {
-      this.contextValue += ";openConfig;chooseModel";
-    }
-  }
 
-  contextValue = "modelData";
-  iconPath = new vscode.ThemeIcon("kenning-model");
+    contextValue = "modelData";
+    iconPath = new vscode.ThemeIcon("kenning-model");
 }

@@ -1,18 +1,14 @@
 import { spawn } from "node:child_process";
-import * as vscode from 'vscode';
 import { mkdirSync, writeFile } from "fs";
-import { AUTOML_SCENARIO_TEMPLATE } from "./autoMLScenarioTemplate";
+import * as path from "path";
+import * as vscode from 'vscode';
 import { getWorkspaceDir, REPORT_NAME, REPORT_MD, KENNING_DIR, KChannel } from "../utils";
 import { ConfigurationViewProvider } from "../configuration/viewProvider";
-import * as path from "path";
+import { populateScenario, ScenarioTemplate } from "./autoMLScenarioTemplate";
 
 const ANSI_FILTER_REGEX = /[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g;
 
-export function runScenario(configurationView: ConfigurationViewProvider, platform: string, datasetPath: string, timeLimit: string, appSize: string) {
-    KChannel.show();
-
-    const pluginConfig = vscode.workspace.getConfiguration("kenning-edge-automl");
-
+function prepareRunDir(runsDir: string) {
     const now = new Date();
     const now_y = now.getFullYear();
     const now_m = String(now.getMonth() + 1).padStart(2, '0');
@@ -21,32 +17,36 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
     const now_M = String(now.getMinutes()).padStart(2, '0');
     const now_S = String(now.getSeconds()).padStart(2, '0');
     const runId = `run_${now_y}_${now_m}_${now_d}_${now_H}_${now_M}_${now_S}`;
+    return path.join(runsDir, runId);
+}
+
+export function runScenario(configurationView: ConfigurationViewProvider, platform: string, datasetPath: string, timeLimit: string, appSize: string, baseScenario: ScenarioTemplate) {
+    KChannel.show();
+
+    const pluginConfig = vscode.workspace.getConfiguration("kenning-edge-automl");
+
     const workspaceDir = getWorkspaceDir();
     if (workspaceDir === undefined) {
         KChannel.append("Open workspace before running Kenning");
         configurationView.enableRunButton();
         return;
     }
+
     const runsDir = path.join(".", KENNING_DIR);
-    const runDir = path.join(runsDir, runId);
+    const runDir = prepareRunDir(runsDir);
+
     const runScenarioPath = path.join(runDir, "scenario.json");
     const runReportPath = path.join(runDir, REPORT_NAME, REPORT_MD);
-    const runZephyrOutputPath = path.join(runDir, "zephyr");
 
-    let scenario = AUTOML_SCENARIO_TEMPLATE;
-
-    scenario.platform.type = "ZephyrPlatform";
-    // Local platform does not have name parameter
-    scenario.platform.parameters = { name: platform, simulated: pluginConfig.get("simulate") };
-    scenario.automl.parameters.n_best_models = pluginConfig.get("numberOfOutputModels") ?? scenario.automl.parameters.n_best_models;
-    scenario.runtime_builder.parameters.output_path = runZephyrOutputPath;
-    scenario.runtime_builder.parameters.workspace = pluginConfig.get("kenningZephyrRuntimePath") ?? scenario.runtime_builder.parameters.workspace;
-    scenario.dataset.parameters.csv_file = datasetPath;
-    scenario.dataset.parameters.dataset_root = path.join(runDir, "dataset");
-    scenario.optimizers[0].parameters.compiled_model_path = path.join(runDir, "vae.tflite");
-    scenario.automl.parameters.output_directory = runDir;
-    scenario.automl.parameters.time_limit = Number.parseFloat(timeLimit);
-    scenario.automl.parameters.application_size = Number.parseFloat(appSize);
+    const scenario = populateScenario(
+        baseScenario,
+        runDir,
+        pluginConfig,
+        platform,
+        datasetPath,
+        timeLimit,
+        appSize,
+    );
 
     const absRunDir = path.join(workspaceDir, runDir);
     mkdirSync(absRunDir, {recursive: true});
@@ -68,7 +68,7 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
             cancellable: true,
         }, (_progress, token) => {
 
-            var kenningProcess = spawn(
+            const kenningProcess = spawn(
                 "python3",  [
                     "-m", "kenning", "automl", "optimize", "test", "report",
                     "--report-path", runReportPath,
@@ -108,6 +108,6 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
             });
 
             return kenningProcessEnd;
-        }
+        },
     );
 }

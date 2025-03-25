@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
 import * as path from 'path';
+import * as vscode from 'vscode';
 
 import { WebviewState } from './configuration/messageTypes';
 
@@ -41,7 +41,7 @@ export function validatePath(p: string | null | undefined): string | undefined {
 
 
 /**
- * Interface defining worksapce state with restricted keys
+ * Interface defining workspace state with restricted keys
  */
 export interface Memento extends vscode.Memento {
 		get<T>(key: keyof WebviewState): T | undefined;

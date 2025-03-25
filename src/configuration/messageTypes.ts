@@ -1,19 +1,19 @@
 // Defines IDs for HTML elements
 export const IDS = {
-  automlButton: "run-automl-button",
-  datasetPath: "kenning-configuration-dataset-path",
-  datasetButton: "kenning-configuration-dataset-path-browse",
-  platform: "kenning-configuration-platform",
-  timeLimit: "kenning-configuration-time-limit",
-  appSize: "kenning-configuration-app-size",
-  targetPath: "kenning-configuration-target-model-path",
-  targetPathButton: "kenning-configuration-target-model-path-browse",
+    automlButton: "run-automl-button",
+    datasetPath: "kenning-configuration-dataset-path",
+    datasetButton: "kenning-configuration-dataset-path-browse",
+    platform: "kenning-configuration-platform",
+    timeLimit: "kenning-configuration-time-limit",
+    appSize: "kenning-configuration-app-size",
+    targetPath: "kenning-configuration-target-model-path",
+    targetPathButton: "kenning-configuration-target-model-path-browse",
 } as const;
 // Type containing values of ids
 export type WebviewIds = typeof IDS[keyof typeof IDS];
 
 // Defines the webview state type
-export type RunAutoMLState = {
+export interface RunAutoMLState {
   datasetPath?: string,
   platform?: string,
   timeLimit?: string,
@@ -22,28 +22,31 @@ export type RunAutoMLState = {
 export type WebviewState = RunAutoMLState & { targetModelPath?: string };
 
 // Defines message types send to webview
-type UpdateConfMsg = {
+interface UpdateConfMsg {
     type: "updateConfiguration",
-    platforms: [string, string][],
 }
 type RestoreStateMsg = {
     type: "restoreState",
 } & WebviewState;
-type EnableButtonMsg = {
+interface EnableButtonMsg {
     type: "enableButton",
 }
-type SetDatasetMsg = {
+interface SetDatasetMsg {
     type: "setDatasetPath",
     value: string,
 }
-type SetTargetMsg = {
+interface SetTargetMsg {
     type: "setTargetModelPath",
     value: string,
 }
-type SetFieldMsg = {
+interface SetFieldMsg {
     type: "getField",
     elementName: string,
     value: string,
+}
+interface UpdatePlatformsMsg {
+    type: "updatePlatforms",
+    platforms: [string, string][],
 }
 export type MessageTypeIn =
     | UpdateConfMsg
@@ -51,21 +54,22 @@ export type MessageTypeIn =
     | EnableButtonMsg
     | SetDatasetMsg
     | SetTargetMsg
-    | SetFieldMsg;
+    | SetFieldMsg
+    | UpdatePlatformsMsg;
 
 // Defines message types send from webview
-type BrowseDatasetMsg = {
+interface BrowseDatasetMsg {
     type: "browseDataset",
 }
-type BrowseTargetMsg = {
+interface BrowseTargetMsg {
     type: "browseTargetModelPath",
 }
-type UpdateFieldMsg = {
+interface UpdateFieldMsg {
     type: "updateField",
     name: keyof WebviewState,
     value: string,
 }
-type GetFieldMsg = {
+interface GetFieldMsg {
     type: "getField",
     elementName: WebviewIds,
     storageName: keyof WebviewState,

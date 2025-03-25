@@ -1,4 +1,5 @@
 out
+out_tests
 dist
 node_modules
 .vscode-test/
@@ -6,3 +7,6 @@ node_modules
 resources/elements-lite/**
 resources/codicons/**
 zephyr-workspace
+
+test/mock_kenning/build
+test/mock_kenning/**/*.egg-info

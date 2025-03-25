@@ -56,13 +56,13 @@
         {
             "label": "postDebugCleanup",
             "type": "shell",
-            "command": "echo ${input:termianteWatch}",
+            "command": "echo ${input:terminateWatch}",
             "problemMatcher": []
         }
     ],
     "inputs": [
         {
-            "id": "termianteWatch",
+            "id": "terminateWatch",
             "type": "command",
             "command": "workbench.action.tasks.terminate",
             "args": "yarn: watch:extension"

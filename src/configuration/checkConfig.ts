@@ -10,9 +10,9 @@ import { KChannel } from '../utils';
 export function checkConfig(): boolean {
     const pluginConfig = vscode.workspace.getConfiguration("kenning-edge-automl");
 
-    let errors: string[] = [];
+    const errors: string[] = [];
 
-    const kenningZephyrRuntimePath = pluginConfig.get("kenningZephyrRuntimePath") as string | undefined;
+    const kenningZephyrRuntimePath = pluginConfig.get<string>("kenningZephyrRuntimePath");
 
     // Check if Kenning Zephyr Runtime path is set and exists
     if (kenningZephyrRuntimePath === undefined) {

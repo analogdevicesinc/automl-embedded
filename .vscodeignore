@@ -16,9 +16,8 @@ cypress/**
 
 .mocharc.js
 Dockerfile*
-out/ui-test/**
-out/ui-test-utils/**
 test-resources/**
+out_tests
 
 *.run
 .env*
