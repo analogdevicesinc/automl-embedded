@@ -1,15 +1,21 @@
+import * as path from "path";
 import { Workbench, EditorView, By, VSBrowser, until, SideBarView, CustomTreeItem, TitleBar } from 'vscode-extension-tester';
 import { closeFolder, openFolder } from '../ui-test-utils/file-utils.js';
 
 // An example how to handle a simple web view
 describe('Run AutoML Test', () => {
     let workbench: Workbench;
-    const testDirectory = "/workspaces/kenning-zephyr-runtime-example-app";
+    const testDirectory = "/tmp/vscode-mock-kenning-zephyr-runtime-example-app";
 
 
     before(async function () {
         this.timeout(0);
         workbench = new Workbench();
+        // set path to kenning-zephyr-runtime in settings
+        const settings = await workbench.openSettings();
+        const kzrSetting = await settings.findSettingByID("kenning-edge-automl.kenningZephyrRuntimePath");
+        await kzrSetting.setValue(path.join(testDirectory, "kenning-zephyr-runtime"));
+        // open workspace with mocked kenning-zephyr-runtime-example-app
         await closeFolder();
         await workbench.getDriver().sleep(500);
         await openFolder(testDirectory);
