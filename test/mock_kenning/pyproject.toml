@@ -9,6 +9,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "pyyaml",
+]
 
 [project.scripts]
 kenning = "kenning.cli.cli:main"
