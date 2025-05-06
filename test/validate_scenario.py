@@ -18,7 +18,7 @@ dataset = scenario["dataset"]["parameters"]
 assert platform["name"] == "max32690evkit/max32690/m4"
 assert platform["simulated"] is True
 
-assert runtime_builder["workspace"] == "/workspaces/kenning-zephyr-runtime-example-app/kenning-zephyr-runtime/"
+assert runtime_builder["workspace"] == "/tmp/vscode-mock-kenning-zephyr-runtime-example-app/kenning-zephyr-runtime"
 
 assert abs(float(automl["time_limit"]) - 2) < 1e-3
 assert abs(float(automl["application_size"]) - 75.5) < 1e-3
