@@ -17,6 +17,7 @@ cypress/**
 .mocharc.js
 Dockerfile*
 test-resources/**
+test/**
 out_tests
 
 *.run
@@ -28,6 +29,7 @@ out_tests
 .github
 mkdocs.yml
 
+images/**
 scripts/**
 .devcontainer/**
 venv/**
