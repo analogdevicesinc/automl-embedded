@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2025 Analog Devices, Inc.
+ * Copyright (c) 2025 Antmicro <www.antmicro.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+
 import { PathLike, rmSync, unlinkSync } from "fs";
 import { EditorView, InputBox, Key, TitleBar } from "vscode-extension-tester";
 

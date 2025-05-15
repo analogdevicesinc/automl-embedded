@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2025 Analog Devices, Inc.
+ * Copyright (c) 2025 Antmicro <www.antmicro.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+
 import * as fs from "fs";
 import * as path from "path";
 import { spawnSync } from 'node:child_process';

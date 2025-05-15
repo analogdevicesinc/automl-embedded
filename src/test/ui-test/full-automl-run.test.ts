@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2025 Analog Devices, Inc.
+ * Copyright (c) 2025 Antmicro <www.antmicro.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+
 import * as path from "path";
 import { Workbench, EditorView, By, VSBrowser, until, SideBarView, CustomTreeItem, TitleBar } from 'vscode-extension-tester';
 import { closeFolder, openFolder } from '../ui-test-utils/file-utils.js';

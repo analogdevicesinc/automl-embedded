@@ -1,3 +1,11 @@
+/**
+ * Copyright (c) 2025 Analog Devices, Inc.
+ * Copyright (c) 2025 Antmicro <www.antmicro.com>
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+
 /*
  * The module 'vscode' contains the VS Code extensibility API
  * Import the module and reference it with the alias vscode in your code below

@@ -1,3 +1,8 @@
+# Copyright (c) 2025 Analog Devices, Inc.
+# Copyright (c) 2025 Antmicro <www.antmicro.com>
+#
+# SPDX-License-Identifier: Apache-2.0
+
 """
 Takes JSON file with a dictionary mapping characters to SVG paths
 and creates a WOFF file with icon contribution point for VSCode plugin.
