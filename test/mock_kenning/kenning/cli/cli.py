@@ -5,11 +5,17 @@
 
 import sys
 import json
+import yaml
 import time
 import shutil
 from pathlib import Path
 
 def main():
+    if "available-platforms" in sys.argv:
+        with open(Path(__file__).parent.parent / "resources/platforms/platforms.yml") as pfd:
+            print(json.dumps(yaml.safe_load(pfd)))
+        return 0
+
     time.sleep(10)
 
     Path("/tmp/mock_kenning_run").write_text(json.dumps(sys.argv))

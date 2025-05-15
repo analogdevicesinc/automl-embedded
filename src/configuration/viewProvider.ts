@@ -251,8 +251,8 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
             }
         }
 
-        const getPlatformsCmd = ["-c", "import yaml; import json; import kenning.resources.platforms as platforms; from pathlib import Path; import inspect; fd = (Path(inspect.getfile(platforms)).parent / 'platforms.yml').open(); data = yaml.safe_load(fd); print(json.dumps(data)); fd.close()"];
-        const listPlatforms = spawnSync("python3", getPlatformsCmd);
+        const getPlatformsCmd = ["available-platforms", "--json"];
+        const listPlatforms = spawnSync("kenning", getPlatformsCmd);
 
         const platforms: [string, string][] = [];
         const platformsDefs = JSON.parse(listPlatforms.stdout.toString()) as Map<string, any>;
