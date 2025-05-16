@@ -77,8 +77,8 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
         }, (_progress, token) => {
 
             const kenningProcess = spawn(
-                "python3",  [
-                    "-m", "kenning", "automl", "optimize", "test", "report",
+                "kenning",  [
+                    "automl", "optimize", "test", "report",
                     "--report-path", runReportPath,
                     "--cfg", runScenarioPath,
                     "--verbosity", "INFO",
