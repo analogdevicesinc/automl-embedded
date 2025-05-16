@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.0
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qqy yarn
+          yarn install
+      - name: Build the plugin
+        run: |
+          yarn vsix-package
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -qqy --no-install-recommends \
+            libnss3 \
+            libatk-bridge2.0-0 \
+            libxcomposite1 \
+            libasound2-dev \
+            libxkbcommon-x11-0 \
+            libgbm1 \
+            libgtk-3-0 \
+            xvfb \
+            xauth
+          pip3 install pyyaml
+          yarn install
+      - name: Run tests
+        run: |
+          ./test/ui_test.sh
+          python3 ./test/validate_scenario.py /tmp/scenario.json
