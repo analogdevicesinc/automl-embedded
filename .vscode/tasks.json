@@ -1,0 +1,71 @@
+// See https://go.microsoft.com/fwlink/?LinkId=733558
+// for the documentation about the tasks.json format
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "watch",
+            "dependsOn": [
+                "yarn: watch:extension",
+            ],
+            "presentation": {
+                "reveal": "never"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "yarn: watch:extension",
+            "type": "shell",
+            "command": "yarn watch:extension",
+            "detail": "yarn watch:extension",
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "owner": "typescript",
+                    "source": "Typescript",
+                    "fileLocation": "absolute",
+                    "applyTo": "allDocuments",
+                    "pattern": [
+                        {
+                            "regexp": "(ERROR|WARNING)\\(TypeScript\\)  (.*)",
+                            "severity": 1,
+                            "message": 2
+                        },
+                        {
+                            "regexp": "^ FILE  (.*):(\\d*):(\\d*)$",
+                            "file": 1,
+                            "line": 2,
+                            "column": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "build started\\.\\.\\.",
+                        "endsPattern": "built in .*\\."
+                    }
+                }
+            ],
+            "presentation": {
+                "group": "watch",
+                "reveal": "never"
+            }
+        },
+        {
+            "label": "postDebugCleanup",
+            "type": "shell",
+            "command": "echo ${input:terminateWatch}",
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "terminateWatch",
+            "type": "command",
+            "command": "workbench.action.tasks.terminate",
+            "args": "yarn: watch:extension"
+        }
+    ]
+}

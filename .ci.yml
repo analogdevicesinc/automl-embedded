@@ -1,0 +1,43 @@
+image: node:20
+
+pre-commit:
+  script:
+    - apt-get update
+    - apt-get install -qqy --no-install-recommends python3-pip
+    - rm /usr/lib/python3.11/EXTERNALLY-MANAGED
+    - pip install pre-commit
+    - pre-commit run --all-files
+
+automl-flow:
+  before_script:
+    - apt-get update
+    - apt-get install -qqy --no-install-recommends
+      libnss3
+      libatk-bridge2.0-0
+      libxcomposite1
+      libasound2
+      libxkbcommon-x11-0
+      libgbm1
+      libgtk-3-0
+      xvfb
+      xauth
+      python3-pip
+    - rm /usr/lib/python3.11/EXTERNALLY-MANAGED
+    - python3 -m pip install --no-cache-dir --upgrade
+      pip
+      setuptools
+      pyyaml
+  script:
+    - yarn install
+    - ./test/ui_test.sh
+    - python3 ./test/validate_scenario.py /tmp/scenario.json
+  after_script:
+    - mkdir -p ./results
+    - mv /tmp/scenario.json ./results/ || true
+    - mv /tmp/test-resources/screenshots ./results/ || true
+    - mv /tmp/test-resources/test.log ./results/ || true
+  artifacts:
+    when: always
+    paths:
+      - ./results/
+  retry: 1

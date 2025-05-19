@@ -1,0 +1,31 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "module": "ESNext",
+        "target": "ESNext",
+        "outDir": "out",
+        "lib": ["DOM", "ES6", "ES2021.String"],
+        "types": ["node", "mocha"],
+        "sourceMap": true,
+        "rootDir": ".",
+        "baseUrl": ".",
+        "strict": true,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedParameters": true,
+        "resolveJsonModule": true,
+        "noImplicitAny": true,
+        "skipLibCheck": true,
+        "noEmit": false,
+        "jsx": "react-jsx",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "paths": {
+            "@common/*": ["./src/webviews/common/*"],
+            "rollup/parseAst": ["./node_modules/rollup/dist/parseAst"]
+        }
+    },
+    "ts-node": {
+  	"esm": true
+    }
+}
