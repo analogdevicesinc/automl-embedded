@@ -7,44 +7,33 @@
 
 
 import { WebviewApi } from "vscode-webview";
-import { WebviewState, MessageTypeIn, MessageTypeOut, IDS, WebviewIds } from "../messageTypes";
+import { WebviewState, MessageTypeIn, MessageTypeOut, IDS, WebviewStringFields, GettableStorageName } from "../messageTypes";
 
 import cssClasses from "./main.module.scss";
-
-interface InternalState {
-  buttonEnabled: boolean,
-}
 
 /*
  * This script will be run within the webview itself
  * It cannot access the main VS Code APIs directly.
  */
 (function () {
-const vscode: WebviewApi<InternalState> = acquireVsCodeApi();
+const vscode: WebviewApi<null> = acquireVsCodeApi();
 
 const runButton: HTMLButtonElement | null = document.querySelector(`#${IDS.automlButton}`);
 const datasetField: HTMLInputElement | null = document.querySelector(`#${IDS.datasetPath}`);
 const datasetFieldBrowseButton: HTMLButtonElement | null = document.querySelector(`#${IDS.datasetButton}`);
 const platformField: HTMLSelectElement | null = document.querySelector(`#${IDS.platform}`);
+const optimizerField: HTMLSelectElement | null = document.querySelector(`#${IDS.optimizer}`);
 const timeLimitField: HTMLInputElement | null = document.querySelector(`#${IDS.timeLimit}`);
 const appSizeField: HTMLInputElement | null = document.querySelector(`#${IDS.appSize}`);
 const targetModelPath: HTMLInputElement | null = document.querySelector(`#${IDS.targetPath}`);
 const targetModelPathBrowseButton: HTMLButtonElement | null = document.querySelector(`#${IDS.targetPathButton}`);
+const simulateCheckbox: HTMLInputElement | null = document.querySelector(`#${IDS.simulate}`);
 
 /**
  * Sends message to the main VSCode context.
  */
 function postMessage(message: MessageTypeOut) {
     vscode.postMessage(message);
-}
-
-const state = vscode.getState() ?? { buttonEnabled: true };
-/**
- * Sets internal state of the webview.
- */
-function setState({buttonEnabled}: {buttonEnabled?: boolean}) {
-    state.buttonEnabled = buttonEnabled ?? state.buttonEnabled;
-    vscode.setState(state);
 }
 
 // Define onClick behavior for buttons
@@ -57,9 +46,6 @@ if (datasetFieldBrowseButton !== null) {
 if (targetModelPathBrowseButton !== null) {
     targetModelPathBrowseButton.addEventListener('click', () => postMessage({ type: "browseTargetModelPath"}));
 }
-if (!state.buttonEnabled && runButton !== null) {
-    runButton.disabled = true;
-}
 
 /**
  * Sets listener to update workspace state once a given field is changed.
@@ -71,9 +57,13 @@ function setStorageUpdater(
 ) {
     if (element === null) {return;}
     element.addEventListener(eventType, (event) => {
-        let value = "";
+        let value: string | boolean = "";
         if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement) {
-            value = event.target.value;
+            if (event.target.type === "checkbox") {
+                value = event.target.checked;
+            } else {
+                value = event.target.value;
+            }
         }
         postMessage({type: "updateField", name: storageName, value});
     });
@@ -82,15 +72,17 @@ function setStorageUpdater(
 /**
  * Sets value of field with value from workspace state.
  */
-function getField(elementName: WebviewIds, storageName: keyof WebviewState) {
+function getField(elementName: WebviewStringFields, storageName: GettableStorageName) {
     postMessage({type: "getField", elementName, storageName});
 }
 
 setStorageUpdater(datasetField, 'datasetPath');
 setStorageUpdater(platformField, 'platform');
+setStorageUpdater(optimizerField, 'optimizer');
 setStorageUpdater(timeLimitField, 'timeLimit');
 setStorageUpdater(appSizeField, 'appSize');
 setStorageUpdater(targetModelPath, 'targetModelPath', 'input');
+setStorageUpdater(simulateCheckbox, 'simulate');
 
 // Handle messages sent from the extension to the webview
 window.addEventListener('message', (event: MessageEvent<MessageTypeIn>) => {
@@ -108,19 +100,7 @@ window.addEventListener('message', (event: MessageEvent<MessageTypeIn>) => {
         enableButton();
         break;
     }
-    case "setDatasetPath": {
-        if (datasetField !== null) {
-            datasetField.value = message.value;
-        }
-        break;
-    }
-    case "setTargetModelPath": {
-        if (targetModelPath) {
-            targetModelPath.value = message.value;
-        }
-        break;
-    }
-    case "getField": {
+    case "setField": {
         const element = document.querySelector(`#${message.elementName}`);
         if (
             element === null ||
@@ -132,7 +112,17 @@ window.addEventListener('message', (event: MessageEvent<MessageTypeIn>) => {
         break;
     }
     case "updatePlatforms": {
-        updatePlatformsSelect(message.platforms);
+        updateSelectOptions(platformField, message.platforms);
+        break;
+    }
+    case "updateOptimizers": {
+        updateSelectOptions(
+            optimizerField, message.optimizers,
+        );
+        break;
+    }
+    case "toggleSimulate": {
+        setupSimulateCheckbox(message.enable);
         break;
     }
     }
@@ -142,17 +132,32 @@ window.addEventListener('message', (event: MessageEvent<MessageTypeIn>) => {
  * Restore webview state.
  */
 function restoreState(state: WebviewState) {
+    if (runButton && state.enableButton !== undefined) {
+        runButton.disabled = !state.enableButton;
+    }
     if (datasetField && state.datasetPath !== undefined) {
         datasetField.value = state.datasetPath;
     }
     if (platformField && state.platform !== undefined) {
-        setPlatform(state.platform);
+        setOption(platformField, state.platform);
+    }
+    if (optimizerField && state.optimizerOptions) {
+        updateSelectOptions(optimizerField, state.optimizerOptions);
+    }
+    if (optimizerField && state.optimizer !== undefined) {
+        setOption(optimizerField, state.optimizer);
     }
     if (timeLimitField && state.timeLimit !== undefined) {
         timeLimitField.value = state.timeLimit;
     }
     if (appSizeField && state.appSize !== undefined) {
         appSizeField.value = state.appSize;
+    }
+    if (simulateCheckbox && state.simulate !== undefined) {
+        simulateCheckbox.checked = state.simulate;
+    }
+    if (state.simulationsAvailable !== undefined) {
+        setupSimulateCheckbox(state.simulationsAvailable);
     }
     if (targetModelPath && state.targetModelPath !== undefined) {
         targetModelPath.value = state.targetModelPath;
@@ -162,34 +167,31 @@ function restoreState(state: WebviewState) {
 /**
  * Updates options in select platforms.
  */
-function updatePlatformsSelect(platforms: [string, string][]) {
-    if (platformField) {
-        const curPlatformName = getPlatform();
-
-        platformField.textContent = '';
-
-        for (const platform of platforms) {
-            const option: HTMLOptionElement = document.createElement('option');
-            option.value = platform[1];
-            option.textContent = platform[0] ?? null;
-            platformField.appendChild(option);
-        }
-
-        if (curPlatformName !== undefined) {
-            setPlatform(curPlatformName);
-        }
-    }
-}
-
-function setPlatform(name: string) {
-    if (!platformField) {
+function updateSelectOptions(selectField: HTMLSelectElement | null, platforms: [string, string][]) {
+    if (!selectField) {
         return;
     }
 
-    for (let i = 0; i < platformField.options.length; ++i) {
-        const option = platformField.options.item(i);
+    const curPlatformName = getSelected(selectField);
+    selectField.textContent = '';
+
+    for (const platform of platforms) {
+        const option: HTMLOptionElement = document.createElement('option');
+        option.value = platform[1];
+        option.textContent = platform[0] ?? null;
+        selectField.appendChild(option);
+    }
+
+    if (curPlatformName !== undefined) {
+        setOption(selectField, curPlatformName);
+    }
+}
+
+function setOption(selectField: HTMLSelectElement, name: string) {
+    for (let i = 0; i < selectField.options.length; ++i) {
+        const option = selectField.options.item(i);
         if (option && option.value === name) {
-            platformField.selectedIndex = option.index;
+            selectField.selectedIndex = option.index;
             return i;
         }
     }
@@ -197,18 +199,14 @@ function setPlatform(name: string) {
     return;
 }
 
-function getPlatform() {
-    if (!platformField) {
-        return;
-    }
-
-    const idx = platformField.selectedIndex;
+function getSelected(selectField: HTMLSelectElement) {
+    const idx = selectField.selectedIndex;
 
     if (idx < 0) {
         return;
     }
 
-    return platformField.options.item(idx)?.value;
+    return selectField.options.item(idx)?.value;
 }
 
 /**
@@ -217,15 +215,26 @@ function getPlatform() {
 function enableButton() {
     if (runButton) {
         runButton.disabled = false;
-        setState({buttonEnabled: true});
+    }
+}
+
+function setupSimulateCheckbox(enable: boolean) {
+    if (!simulateCheckbox) {return;}
+
+    simulateCheckbox.disabled = !enable;
+    if (!enable) {
+        simulateCheckbox.checked = false;
+        postMessage({type: "updateField", name: "simulationsAvailable", value: false});
     }
 }
 
 /**
  * Validates data and sets invalid class for input and select fields.
  */
-function validateData(field: HTMLInputElement | HTMLSelectElement | null) {
+function validateData(field: HTMLInputElement | HTMLSelectElement | null, markError = true) {
     const value = field?.value;
+    if (!markError) {return value;}
+
     if (field && !value) {
         field.classList.add(cssClasses.invalid);
     } else if (field) {
@@ -240,14 +249,16 @@ function validateData(field: HTMLInputElement | HTMLSelectElement | null) {
 function runAutoML() {
     if (runButton !== null) {
         runButton.disabled = true;
-        setState({buttonEnabled: false});
+        postMessage({type: "updateField", name: "enableButton", value: false});
     }
     const datasetPath = validateData(datasetField);
     const platform = validateData(platformField);
     const timeLimit = validateData(timeLimitField);
-    const appSize = validateData(appSizeField);
+    const appSize = validateData(appSizeField, false);
+    const optimizer = validateData(optimizerField);
+    const simulate = simulateCheckbox?.checked;
 
-    postMessage({ type: "runAutoML", datasetPath, platform, timeLimit, appSize });
+    postMessage({ type: "runAutoML", datasetPath, platform, timeLimit, appSize, optimizer, simulate });
 }
 
 })();

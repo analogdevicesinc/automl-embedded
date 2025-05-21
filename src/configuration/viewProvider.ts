@@ -32,6 +32,8 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
     private watchedScenarioPath?: string;
     private baseScenario?: ScenarioTemplate;
     private kenningPlatforms?: [string, string][];
+    private kenningOptimizers?: Map<string, string[]>;
+    private kenningSimulablePlatforms?: Map<string, boolean>;
 
     constructor(
         _extensionContext: vscode.ExtensionContext,
@@ -47,11 +49,28 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
         this._view.webview.postMessage(message);
     }
 
-    private _getState(key: keyof WebviewState, defValue: string | undefined = undefined) {
-        return this._workspaceState.get(key, defValue);
+    private _getState<T>(key: keyof WebviewState, defValue: T | undefined = undefined): T | undefined {
+        if (defValue !== undefined) {
+            return this._workspaceState.get<T>(key, defValue);
+        }
+        return this._workspaceState.get<T>(key);
     }
 
-    private _updateState(key: keyof WebviewState, value: string) {
+    private _updateState(key: keyof WebviewState, value: WebviewState[keyof WebviewState]) {
+        if (key === "platform") {
+            this._postMessage({
+                type: "updateOptimizers",
+                optimizers: (this.kenningOptimizers?.get(value as string) ?? []).map(
+                    (v): [string, string] => [this._processOptimizerName(v), v],
+                ),
+            });
+            const simulationAvailable = this._checkSimulationAvailability(value as string);
+            this._postMessage({
+                type: "toggleSimulate",
+                enable: simulationAvailable,
+            });
+            this._workspaceState.update("simulationsAvailable", simulationAvailable);
+        }
         return this._workspaceState.update(key, value);
     }
 
@@ -78,7 +97,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
             case "runAutoML": {
                 const undefinedFields: string[] = [];
                 for (const [key, value] of Object.entries(data)) {
-                    if (!value) {
+                    if (key !== "appSize" && (value === undefined || value === "")) {
                         undefinedFields.push(key);
                     }
                 }
@@ -87,7 +106,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     this.enableRunButton();
                     break;
                 }
-                if (!checkConfig()) {
+                if (!checkConfig(data)) {
                     this.enableRunButton();
                     break;
                 }
@@ -101,7 +120,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     break;
                 }
 
-                runScenario(this, data.platform!, data.datasetPath!, data.timeLimit!, data.appSize!, baseScenario);
+                runScenario(this, data.platform!, data.optimizer!, data.datasetPath!, data.timeLimit!, data?.appSize, data.simulate!, baseScenario);
                 break;
             }
             case "browseDataset": {
@@ -115,7 +134,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     },
                 }).then((fileUri) => {
                     if (fileUri?.[0]) {
-                        this._postMessage({type: "setDatasetPath", value: fileUri[0].fsPath});
+                        this._postMessage({type: "setField", elementName: IDS.datasetPath, value: fileUri[0].fsPath});
                         this._updateState("datasetPath", fileUri[0].fsPath);
                     }
                 });
@@ -130,7 +149,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                         if (!fs.existsSync(targetDir)) {
                             await fs.promises.mkdir(targetDir, {recursive: true});
                         }
-                        this._postMessage({type: "setTargetModelPath", value: fileUri.fsPath});
+                        this._postMessage({type: "setField", elementName: IDS.targetPath, value: fileUri.fsPath});
                         this._updateState('targetModelPath', fileUri.fsPath);
                     }
                 });
@@ -141,9 +160,9 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                 break;
             }
             case "getField": {
-                const value = this._getState(data.storageName);
+                const value = this._getState<string>(data.storageName);
                 if (value) {
-                    this._postMessage({type: "getField", elementName: data.elementName, value});
+                    this._postMessage({type: "setField", elementName: data.elementName, value});
                 }
                 break;
             }
@@ -185,12 +204,19 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
     }
 
     private restoreState() {
+        const platform = this._getState("platform", "MAX32690 Evaluation Kit");
+        const optimizerOptions = (this.kenningOptimizers?.get(platform ?? "") ?? []).map((v): [string, string] => [v, v]);
         const state = {
             datasetPath: this._getState("datasetPath", ""),
-            platform: this._getState("platform", "MAX32690 Evaluation Kit"),
+            platform,
+            optimizerOptions,
+            optimizer: this._getState("optimizer", optimizerOptions[0]?.at(0) ?? ""),
             timeLimit: this._getState("timeLimit", "10"),
             appSize: this._getState("appSize", "80"),
+            simulate: this._getState("simulate", true),
             targetModelPath: this._getState("targetModelPath", ""),
+            enableButton: this._getState("enableButton", true),
+            simulationAvailable: this._getState("simulationsAvailable", false),
         };
 
         if (this._view?.visible) {
@@ -255,12 +281,19 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
         const listPlatforms = spawnSync("kenning", getPlatformsCmd);
 
         const platforms: [string, string][] = [];
+        const platformsOptimizers = new Map<string, string[]>();
+        const simulablePlatforms = new Map<string, boolean>();
         const platformsDefs = JSON.parse(listPlatforms.stdout.toString()) as Map<string, any>;
-        for (const [platform, fields] of (Object.entries(platformsDefs)) as [string, {default_platform: string, display_name: string}][]) {
+        interface PlatformFields {default_platform: string, display_name: string, default_optimizer: string[], platform_resc_path?: string}
+        for (const [platform, fields] of (Object.entries(platformsDefs)) as [string, PlatformFields][]) {
             if (fields.default_platform !== "ZephyrPlatform") {continue;}
             platforms.push([fields.display_name, platform]);
+            platformsOptimizers.set(platform, fields.default_optimizer);
+            simulablePlatforms.set(platform, fields.platform_resc_path !== undefined);
         }
         this.kenningPlatforms = platforms;
+        this.kenningOptimizers = platformsOptimizers;
+        this.kenningSimulablePlatforms = simulablePlatforms;
         return platforms;
     }
 
@@ -308,6 +341,15 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
 
     public enableRunButton() {
         this._postMessage({type: "enableButton"});
+        this._updateState("enableButton", true);
+    }
+
+    private _checkSimulationAvailability(platform: string | undefined) {
+        return this.kenningSimulablePlatforms?.get(platform ?? "") ?? false;
+    }
+
+    private _processOptimizerName(optimizer: string) {
+        return optimizer.replace(/Compiler$/, '');
     }
 
     private _getHtmlForWebview(webview: vscode.Webview) {
@@ -316,12 +358,36 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
         // Get the local path to main script run in the webview, then convert it to a uri we can use in the webview.
         const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, "out", "configuration", "resources", "main.js"));
 
+        // Prepare platform options
         const platforms: [string, string][] = this.getPlatforms();
         const platformOptions: string[] = [];
+        const platformState = this._getState("platform", "MAX32690 Evaluation Kit");
+        const optimizers: string[] = [];
         for (const platform of platforms) {
             platformOptions.push(
-                `<option value="${platform[1]}" ${platform[1] === this._getState("platform", "MAX32690 Evaluation Kit") ? 'selected' : ''}>${platform[0]}</option>`,
+                `<option value="${platform[1]}" ${platform[1] === platformState ? 'selected' : ''}>${platform[0]}</option>`,
             );
+            if (platform[1] === platformState) {
+                optimizers.push(...(this.kenningOptimizers?.get(platform[1]) ?? []));
+            }
+        }
+        // Prepare optimizer options
+        const optimizerOptions: string[] = [];
+        let optimizerState = this._getState<string>("optimizer");
+        if (optimizerState && !optimizers.includes(optimizerState)) {
+            optimizerState = optimizers.at(0);
+        }
+        optimizers.forEach((opt) => {
+            optimizerOptions.push(
+                `<option value="${opt}" ${opt === optimizerState ? 'selected' : ''}>${this._processOptimizerName(opt)}</option>`,
+            );
+        });
+        // Prepare simulate checkbox
+        const simulationAvailable = this._checkSimulationAvailability(platformState);
+        let enableSimulation = this._getState("simulate", false) as boolean;
+        if (!simulationAvailable && enableSimulation) {
+            enableSimulation = false;
+            this._updateState("simulate", false);
         }
 
         // Use a nonce to only allow a specific script to be run.
@@ -371,6 +437,15 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                 </div>
 
                 <div class="${cssClasses['vscode-label']}">
+                    <label for="${IDS.optimizer}" class="${labelClasses}">Runtime</label>
+                </div>
+                <div class="${cssClasses['vscode-select']}">
+                    <select id="${IDS.optimizer}" class="${cssClasses['kenning-configuration-optimizer']}">
+                        ${optimizerOptions.join("\n")}
+                    </select>
+                </div>
+
+                <div class="${cssClasses['vscode-label']}">
                     <label for="${IDS.timeLimit}" class="${labelClasses}">Time limit for AutoML (in minutes)</label>
                 </div>
                 <input type="number" step="0.1" id="${IDS.timeLimit}" class="${numberInputClasses}" value="${this._getState('timeLimit', '10')}"/>
@@ -381,6 +456,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                 </div>
                 <input type="number" step="0.1" id="${IDS.appSize}" class="${numberInputClasses}" value="${this._getState('appSize', '80')}"/>
                 </br>
+
                 <div class="${cssClasses['vscode-label']}">
                     <label for="${IDS.targetPath}" class="${labelClasses}">Selected model path</label>
                 </div>
@@ -388,6 +464,19 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                     <input id="${IDS.targetPath}" class="${inputClasses}" value="${this._getState('targetModelPath', '')}">
                     <button id="${IDS.targetPathButton}" class="${inputButtonClasses}"></button>
                 </div>
+                </br>
+
+                <div class="${cssClasses['vscode-checkbox']} ${cssClasses['vscode-label']}">
+                    <input type="checkbox" id="${IDS.simulate}" ${(enableSimulation) ? 'checked' : ''} ${(simulationAvailable) ? '': 'disabled'}/>
+                    <label for="${IDS.simulate}">
+                        <span class="${cssClasses.icon}">
+                            <i class="${cssClasses['icon-checked']} ${cssClasses.codicon} ${cssClasses['codicon-check']}"></i>
+                            <i class="${cssClasses['icon-indeterminate']} ${cssClasses.codicon} ${cssClasses['codicon-chrome-minimize']}"></i>
+                        </span>
+                        <span class="${cssClasses.text} ${labelClasses}">Evaluate models in simulation</span>
+                    </label>
+                </div>
+                </br>
                 </br>
 
                 <button id="${IDS.automlButton}" type="button" class="${cssClasses['vscode-button']} ${cssClasses.block}">Run AutoML Optimization</button>
