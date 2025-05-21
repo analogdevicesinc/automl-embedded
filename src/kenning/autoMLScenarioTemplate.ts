@@ -16,6 +16,8 @@ export interface ScenarioTemplate {
             name?: string
             simulated?: boolean
             display_name?: string
+            auto_flash?: boolean
+            openocd_path?: string
         }
     }
     dataset: {
@@ -45,6 +47,8 @@ export interface ScenarioTemplate {
             time_limit?: number
             application_size?: number
             n_best_models?: number
+            use_models?: (string | Map<string, object>)[]
+            use_cuda?: boolean
         }
     }
 }
@@ -56,6 +60,7 @@ export const DEFAULT_BASE_SCENARIO = {
         parameters: {
             name: undefined,
             simulated: undefined,
+            auto_flash: true,
         },
     },
     runtime_builder:
@@ -81,6 +86,7 @@ export const DEFAULT_BASE_SCENARIO = {
             min_budget: 1,
             max_budget: 3,
             application_size: undefined,
+            use_cuda: false,
         },
     },
     dataset:
@@ -101,10 +107,7 @@ export const DEFAULT_BASE_SCENARIO = {
             type: "kenning.optimizers.tflite.TFLiteCompiler",
             parameters:
             {
-                target: "default",
                 compiled_model_path: undefined,
-                inference_input_type: "float32",
-                inference_output_type: "float32",
             },
         },
     ],
@@ -160,14 +163,18 @@ export function validateScenario(scenario: any): scenario is ScenarioTemplate {
     return true;
 }
 
+const AI8X_COMPATIBLE_MODELS = ["Ai8xAnomalyDetectionCNN", "PyTorchAnomalyDetectionCNN"];
+
 export function populateScenario(
     baseScenario: ScenarioTemplate,
     runDir: string,
     extraConfig: vscode.WorkspaceConfiguration,
     platform: string,
+    optimizer: string,
     datasetPath: string,
     timeLimit: string,
-    appSize: string,
+    simulate: boolean,
+    appSize?: string,
 ) {
     const scenario = JSON.parse(JSON.stringify(baseScenario)) as ScenarioTemplate;
 
@@ -176,23 +183,50 @@ export function populateScenario(
     const datasetRootPath = path.join(runDir, 'dataset');
     const compiledModelPath = path.join(runDir, 'vae.tflite');
 
-    scenario.platform.parameters.name = platform;
-    scenario.platform.parameters.simulated = extraConfig.get("simulate");
+    const platformParams = scenario.platform.parameters;
+    platformParams.name = platform;
+    platformParams.simulated = simulate;
+    platformParams.auto_flash = !simulate;
+    const openocdPath = extraConfig.get<string>("openOCDPath");
+    if (openocdPath) {
+        platformParams.openocd_path = openocdPath;
+    }
 
     scenario.runtime_builder.parameters.workspace = configKenningZephyrRuntimePath;
     scenario.runtime_builder.parameters.output_path = runZephyrOutputPath;
 
-    scenario.automl.parameters.output_directory = runDir;
-    scenario.automl.parameters.time_limit = Number.parseFloat(timeLimit);
-    scenario.automl.parameters.application_size = Number.parseFloat(appSize);
-    scenario.automl.parameters.n_best_models = extraConfig.get("numberOfOutputModels");
+    const autoMLParams = scenario.automl.parameters;
+    autoMLParams.output_directory = runDir;
+    autoMLParams.time_limit = Number.parseFloat(timeLimit);
+    autoMLParams.application_size = (appSize) ? Number.parseFloat(appSize) : undefined;
+    autoMLParams.n_best_models = extraConfig.get<number>("numberOfOutputModels");
+    autoMLParams.use_cuda = extraConfig.get<boolean>("useCUDA");
+    // Affect only ai8x compatible models
+    if (optimizer === "Ai8xCompiler") {
+        autoMLParams.use_models = autoMLParams.use_models?.filter(
+            (v) => {
+                let model: string;
+                if (typeof v === "string") {
+                    model = v;
+                } else {
+                    model = v.keys().next().value ?? "";
+                }
+                return AI8X_COMPATIBLE_MODELS.includes(model);
+            },
+        ) ?? [];
+        // If models not defined, use Ai8xAnomalyDetectionCNN
+        if ((autoMLParams.use_models?.length ?? 0) === 0) {
+            autoMLParams.use_models = [AI8X_COMPATIBLE_MODELS[0]];
+        }
+    }
 
     scenario.dataset.parameters.dataset_root = datasetRootPath;
     scenario.dataset.parameters.csv_file = datasetPath;
 
-    let optimizer;
-    if ((optimizer = scenario.optimizers.at(-1)) !== undefined) {
-        optimizer.parameters.compiled_model_path = compiledModelPath;
+    let opts;
+    if ((opts = scenario.optimizers.at(-1)) !== undefined) {
+        opts.parameters.compiled_model_path = compiledModelPath;
+        opts.type = optimizer;
     }
 
     return scenario;
