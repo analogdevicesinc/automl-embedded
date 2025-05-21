@@ -16,6 +16,8 @@ export const IDS = {
     appSize: "kenning-configuration-app-size",
     targetPath: "kenning-configuration-target-model-path",
     targetPathButton: "kenning-configuration-target-model-path-browse",
+    optimizer: "kenning-configuration-optimizer",
+    simulate: "kenning-configuration-simulate",
 } as const;
 // Type containing values of ids
 export type WebviewIds = typeof IDS[keyof typeof IDS];
@@ -24,10 +26,17 @@ export type WebviewIds = typeof IDS[keyof typeof IDS];
 export interface RunAutoMLState {
   datasetPath?: string,
   platform?: string,
+  optimizer?: string,
   timeLimit?: string,
   appSize?: string,
+  simulate?: boolean,
 }
-export type WebviewState = RunAutoMLState & { targetModelPath?: string };
+export type WebviewState = RunAutoMLState & {
+    targetModelPath?: string,
+    enableButton?: boolean,
+    simulationsAvailable?: boolean,
+    optimizerOptions?: [string, string][],
+};
 
 // Defines message types send to webview
 interface UpdateConfMsg {
@@ -39,31 +48,32 @@ type RestoreStateMsg = {
 interface EnableButtonMsg {
     type: "enableButton",
 }
-interface SetDatasetMsg {
-    type: "setDatasetPath",
-    value: string,
-}
-interface SetTargetMsg {
-    type: "setTargetModelPath",
-    value: string,
-}
+export type WebviewStringFields = typeof IDS["datasetPath" | "timeLimit" | "targetPath"];
 interface SetFieldMsg {
-    type: "getField",
-    elementName: string,
+    type: "setField",
+    elementName: WebviewStringFields,
     value: string,
 }
 interface UpdatePlatformsMsg {
     type: "updatePlatforms",
     platforms: [string, string][],
 }
+interface UpdateOptimizersMsg {
+    type: "updateOptimizers",
+    optimizers: [string, string][],
+}
+interface ToggleSimulateMsg {
+    type: "toggleSimulate",
+    enable: boolean,
+}
 export type MessageTypeIn =
     | UpdateConfMsg
     | RestoreStateMsg
     | EnableButtonMsg
-    | SetDatasetMsg
-    | SetTargetMsg
     | SetFieldMsg
-    | UpdatePlatformsMsg;
+    | UpdatePlatformsMsg
+    | UpdateOptimizersMsg
+    | ToggleSimulateMsg;
 
 // Defines message types send from webview
 interface BrowseDatasetMsg {
@@ -75,12 +85,14 @@ interface BrowseTargetMsg {
 interface UpdateFieldMsg {
     type: "updateField",
     name: keyof WebviewState,
-    value: string,
+    value: WebviewState[keyof WebviewState],
 }
+export type GettableStorageName = keyof Omit<WebviewState, "optimizerOptions" | "enableButton">;
+// Sends request to VSCode which responds with setField message
 interface GetFieldMsg {
     type: "getField",
-    elementName: WebviewIds,
-    storageName: keyof WebviewState,
+    elementName: WebviewStringFields,
+    storageName: GettableStorageName,
 }
 type RunAutoMLMsg = {
     type: "runAutoML",
