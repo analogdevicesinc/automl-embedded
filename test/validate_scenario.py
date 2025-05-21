@@ -23,6 +23,7 @@ dataset = scenario["dataset"]["parameters"]
 
 assert platform["name"] == "max32690evkit/max32690/m4"
 assert platform["simulated"] is True
+assert platform["auto_flash"] is False
 
 assert runtime_builder["workspace"] == "/tmp/vscode-mock-kenning-zephyr-runtime-example-app/kenning-zephyr-runtime"
 

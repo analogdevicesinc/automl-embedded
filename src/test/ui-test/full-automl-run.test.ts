@@ -68,6 +68,13 @@ describe('Run AutoML Test', () => {
         await applicationSizeInput.clear();
         await applicationSizeInput.sendKeys("75.5");
 
+        const simulateCheckbox = await workbench.getDriver().findElement(By.id("kenning-configuration-simulate"));
+        const checked = await simulateCheckbox.getAttribute("checked");
+        if (!checked) {
+            const simulateLabel = await workbench.getDriver().findElement(By.css('label[for="kenning-configuration-simulate"]'));
+            await simulateLabel.click();
+        }
+
         const runAutoMLButton = await workbench.getDriver().findElement(By.id("run-automl-button"));
         await runAutoMLButton.click();
         console.log("Started AutoML");
