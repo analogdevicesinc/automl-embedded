@@ -212,7 +212,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
             optimizerOptions,
             optimizer: this._getState("optimizer", optimizerOptions[0]?.at(0) ?? ""),
             timeLimit: this._getState("timeLimit", "10"),
-            appSize: this._getState("appSize", "80"),
+            appSize: this._getState("appSize", "0"),
             simulate: this._getState("simulate", true),
             targetModelPath: this._getState("targetModelPath", ""),
             enableButton: this._getState("enableButton", true),
@@ -452,9 +452,9 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
                 </br>
 
                 <div class="${cssClasses['vscode-label']}">
-                    <label for="${IDS.appSize}" class="${labelClasses}">Application size (in KB)</label>
+                    <label for="${IDS.appSize}" class="${labelClasses}">Application size (in KB) (optional)</label>
                 </div>
-                <input type="number" step="0.1" id="${IDS.appSize}" class="${numberInputClasses}" value="${this._getState('appSize', '80')}"/>
+                <input type="number" step="0.1" id="${IDS.appSize}" class="${numberInputClasses}" value="${this._getState('appSize', '0')}"/>
                 </br>
 
                 <div class="${cssClasses['vscode-label']}">
