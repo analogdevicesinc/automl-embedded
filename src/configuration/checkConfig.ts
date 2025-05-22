@@ -18,7 +18,6 @@ import { RunAutoMLState } from './messageTypes';
 function prepareEnv() {
     const conf2Var = {
         "zephyrSDKPath": "ZEPHYR_SDK_PATH",
-        "pyrenodePath": "PYRENODE_PKG",
         "ai8x-training": "AI8X_TRAINING_PATH",
         "ai8x-synthesis": "AI8X_SYNTHESIS_PATH",
     };
@@ -30,6 +29,15 @@ function prepareEnv() {
             process.env[conf[1]] = pluginConfig.get(conf[0]);
         }
     });
+
+    if (pluginConfig.get("pyrenodePath")) {
+        const renodePath: string = pluginConfig.get("pyrenodePath") ?? "renode";
+        if (renodePath.endsWith(".tar.gz") || renodePath.endsWith(".tar.xz")) {
+            process.env.PYRENODE_PKG = renodePath;
+        } else {
+            process.env.PYRENODE_BIN = renodePath;
+        }
+    }
 }
 
 /**
