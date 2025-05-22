@@ -47,7 +47,7 @@ export interface ScenarioTemplate {
             time_limit?: number
             application_size?: number
             n_best_models?: number
-            use_models?: (string | Map<string, object>)[]
+            use_models?: (string | Record<string, Record<string, Record<string, [number, number]>>>)[]
             use_cuda?: boolean
         }
     }
@@ -83,8 +83,8 @@ export const DEFAULT_BASE_SCENARIO = {
             n_best_models: 5,
             optimize_metric: "f1",
             budget_type: "epochs",
-            min_budget: 1,
-            max_budget: 3,
+            min_budget: 3,
+            max_budget: 8,
             application_size: undefined,
             use_cuda: false,
         },
@@ -209,14 +209,33 @@ export function populateScenario(
                 if (typeof v === "string") {
                     model = v;
                 } else {
-                    model = v.keys().next().value ?? "";
+                    model = Object.keys(v).at(0) ?? "";
                 }
                 return AI8X_COMPATIBLE_MODELS.includes(model);
             },
         ) ?? [];
         // If models not defined, use Ai8xAnomalyDetectionCNN
         if ((autoMLParams.use_models?.length ?? 0) === 0) {
-            autoMLParams.use_models = [AI8X_COMPATIBLE_MODELS[0]];
+            autoMLParams.use_models = [{
+                [AI8X_COMPATIBLE_MODELS[0]]: {
+                    filters: {
+                        list_range: [1, 2],
+                        item_range: [2, 16],
+                    },
+                    conv_stride: {
+                        item_range: [1, 1],
+                    },
+                    conv_dilation: {
+                        item_range: [1, 1],
+                    },
+                    pool_stride: {
+                        item_range: [1, 1],
+                    },
+                    pool_dilation: {
+                        item_range: [1, 1],
+                    },
+                },
+            }];
         }
     }
 
