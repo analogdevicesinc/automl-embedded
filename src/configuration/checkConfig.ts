@@ -116,7 +116,7 @@ export function checkConfig(autoMLConf: RunAutoMLState): boolean {
         } else if (!existsSync(ai8xTrainingPath)) {
             errors.push(`AI8X_TRAINING_PATH not found at ${ai8xTrainingPath}`);
         } else if(!existsSync(path.join(ai8xTrainingPath, ".venv"))) {
-            errors.push(`AI8X_TRAINING_PATH not prepared, missing virtual env at ${ai8xTrainingPath}/.venv`);
+            errors.push(`AI8X_TRAINING_PATH not prepared, missing virtual environment (venv) with project's dependencies at ${ai8xTrainingPath}/.venv`);
         }
 
         const ai8xSynthesisPath = process.env.AI8X_SYNTHESIS_PATH;
@@ -125,7 +125,7 @@ export function checkConfig(autoMLConf: RunAutoMLState): boolean {
         } else if (!existsSync(ai8xSynthesisPath)) {
             errors.push(`AI8X_SYNTHESIS_PATH not found at ${ai8xSynthesisPath}`);
         } else if(!existsSync(path.join(ai8xSynthesisPath, ".venv"))) {
-            errors.push(`AI8X_SYNTHESIS_PATH not prepared, missing virtual env at ${ai8xSynthesisPath}/.venv`);
+            errors.push(`AI8X_SYNTHESIS_PATH not prepared, missing virtual environment (venv) with project's dependencies at ${ai8xSynthesisPath}/.venv`);
         }
     }
 
