@@ -361,7 +361,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
         // Prepare platform options
         const platforms: [string, string][] = this.getPlatforms();
         const platformOptions: string[] = [];
-        const platformState = this._getState("platform", "MAX32690 Evaluation Kit");
+        const platformState = this._getState("platform", "max32690evkit/max32690/m4");
         const optimizers: string[] = [];
         for (const platform of platforms) {
             platformOptions.push(
