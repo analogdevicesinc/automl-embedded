@@ -18,6 +18,7 @@ export interface ScenarioTemplate {
             display_name?: string
             auto_flash?: boolean
             openocd_path?: string
+            uart_port?: string
         }
     }
     dataset: {
@@ -190,6 +191,10 @@ export function populateScenario(
     const openocdPath = extraConfig.get<string>("openocdPath");
     if (openocdPath) {
         platformParams.openocd_path = openocdPath;
+    }
+    const uartPath = extraConfig.get<string>("UARTPath");
+    if (uartPath) {
+        platformParams.uart_port = uartPath;
     }
 
     scenario.runtime_builder.parameters.workspace = configKenningZephyrRuntimePath;
