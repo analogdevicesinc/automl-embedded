@@ -68,6 +68,21 @@ RUN $PIPINST \
 RUN $PIPINST \
     "kenning[anomaly_detection,iree,tvm,tensorflow,tflite,torch,reports,renode,uart,auto_pytorch] @ git+https://github.com/antmicro/kenning.git"
 
+RUN git clone --recurse-submodules https://github.com/analogdevicesinc/ai8x-training.git && \
+    python3 -m venv ai8x-training/.venv && \
+    cd ai8x-training && \
+    .venv/bin/pip install --no-cache --upgrade pip && \
+    .venv/bin/pip install --no-cache -r requirements.txt && \
+    cd -
+
+RUN git clone https://github.com/analogdevicesinc/ai8x-synthesis.git && \
+    python3 -m venv ai8x-synthesis/.venv && \
+    ai8x-synthesis/.venv/bin/pip install --no-cache --upgrade pip && \
+    ai8x-synthesis/.venv/bin/pip install --no-cache -r ai8x-synthesis/requirements.txt
+
+ENV AI8X_TRAINING_PATH=/ai8x-training
+ENV AI8X_SYNTHESIS_PATH=/ai8x-synthesis
+
 RUN mkdir -p /opt/renode && \
     wget -O /opt/renode/renode-latest.pkg.tar.gz https://builds.renode.io/renode-latest.pkg.tar.xz
 
