@@ -187,7 +187,7 @@ export function populateScenario(
     platformParams.name = platform;
     platformParams.simulated = simulate;
     platformParams.auto_flash = !simulate;
-    const openocdPath = extraConfig.get<string>("openOCDPath");
+    const openocdPath = extraConfig.get<string>("openocdPath");
     if (openocdPath) {
         platformParams.openocd_path = openocdPath;
     }
