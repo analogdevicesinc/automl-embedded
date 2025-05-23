@@ -31,7 +31,7 @@
         "kenning-edge-automl.zephyrSDKPath": {
           "type": "string",
           "order": 2,
-          "markdownDescription": "Path to [Zephyr SDK](https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html) directory (optional, can also be passed with `ZEPHYR_SDK_PATH` environmental variable)",
+          "markdownDescription": "Path to [Zephyr SDK](https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html) directory (optional, can also be passed with `$ZEPHYR_SDK_PATH` environmental variable)",
           "default": ""
         },
         "kenning-edge-automl.pyrenodePath": {
@@ -64,15 +64,21 @@
           "markdownDescription": "Path to the OpenOCD binary from [MaximMicrosSDK](https://github.com/analogdevicesinc/msdk) (optional, required for evaluation on Analog Devices hardware, can also be provided via `$PATH`)",
           "default": ""
         },
-        "kenning-edge-automl.ai8x-training": {
+        "kenning-edge-automl.UARTPath": {
           "type": "string",
           "order": 8,
+          "description": "Path to the board's UART used for communication (optional, required only if wildcard defined by Kenning do not match any path)",
+          "default": ""
+        },
+        "kenning-edge-automl.ai8x-training": {
+          "type": "string",
+          "order": 10,
           "markdownDescription": "Path to the local [ai8x-training](https://github.com/analogdevicesinc/ai8x-training/) repository with prepared virtual environment under `./.venv` (optional, needed for deploying models using AI8X runtime)",
           "default": ""
         },
         "kenning-edge-automl.ai8x-synthesis": {
           "type": "string",
-          "order": 9,
+          "order": 11,
           "markdownDescription": "Path to the local [ai8x-synthesis](https://github.com/analogdevicesinc/ai8x-synthesis/) repository with prepared virtual environment under `./.venv` (optional, needed for deploying models using AI8X runtime)",
           "default": ""
         }
