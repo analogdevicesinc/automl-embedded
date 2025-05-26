@@ -205,7 +205,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
 
     private restoreState() {
         const platform = this._getState("platform", "MAX32690 Evaluation Kit");
-        const optimizerOptions = (this.kenningOptimizers?.get(platform ?? "") ?? []).map((v): [string, string] => [v, v]);
+        const optimizerOptions = (this.kenningOptimizers?.get(platform ?? "") ?? []).map((v): [string, string] => [this._processOptimizerName(v), v]);
         const state = {
             datasetPath: this._getState("datasetPath", ""),
             platform,
@@ -216,7 +216,7 @@ export class ConfigurationViewProvider implements vscode.WebviewViewProvider {
             simulate: this._getState("simulate", true),
             targetModelPath: this._getState("targetModelPath", ""),
             enableButton: this._getState("enableButton", true),
-            simulationAvailable: this._getState("simulationsAvailable", false),
+            simulationsAvailable: this._getState("simulationsAvailable", false),
         };
 
         if (this._view?.visible) {
