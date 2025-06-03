@@ -24,22 +24,62 @@
       "properties": {
         "kenning-edge-automl.kenningZephyrRuntimePath": {
           "type": "string",
-          "description": "Path to the Kenning Zephyr Runtime repository",
+          "order": 1,
+          "markdownDescription": "Path to [Kenning Zephyr Runtime](https://github.com/antmicro/kenning-zephyr-runtime/) repository",
           "default": "/workspaces/kenning-zephyr-runtime-example-app/kenning-zephyr-runtime/"
         },
-        "kenning-edge-automl.simulate": {
-          "type": "boolean",
-          "description": "Evaluate models on board simulated with Renode",
-          "default": true
+        "kenning-edge-automl.zephyrSDKPath": {
+          "type": "string",
+          "order": 2,
+          "markdownDescription": "Path to [Zephyr SDK](https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html) directory (optional, can also be passed with `$ZEPHYR_SDK_PATH` environmental variable)",
+          "default": ""
+        },
+        "kenning-edge-automl.pyrenodePath": {
+          "type": "string",
+          "order": 3,
+          "markdownDescription": "Path to Renode package or binary (optional, can also be configured with `PYRENODE_PKG` or `PYRENODE_BIN` environmental variables). Check [pyrenode3 project](https://github.com/antmicro/pyrenode3) for available variables and options. Renode packages are available at [builds.renode.io](https://builds.renode.io)",
+          "default": ""
         },
         "kenning-edge-automl.numberOfOutputModels": {
           "type": "integer",
-          "description": "Maximal number of model candidates to include in the final evaluation",
+          "order": 4,
+          "description": "Number of model candidates to include in the final evaluation",
           "default": 5
+        },
+        "kenning-edge-automl.useCUDA": {
+          "type": "boolean",
+          "order": 5,
+          "description": "Whether GPU should be used to train models",
+          "default": false
         },
         "kenning-edge-automl.kenningScenarioPath": {
           "type": "string",
-          "description": "Path to the base Kenning scenario",
+          "order": 6,
+          "markdownDescription": "Path to the custom Kenning scenario (optional, check [plugin's README](https://github.com/analogdevicesinc/automl-embedded) for more details).",
+          "default": ""
+        },
+        "kenning-edge-automl.openocdPath": {
+          "type": "string",
+          "order": 7,
+          "markdownDescription": "Path to the OpenOCD binary from [MaximMicrosSDK](https://github.com/analogdevicesinc/msdk) (optional, required for evaluation on Analog Devices hardware, can also be provided via `$PATH`)",
+          "default": ""
+        },
+        "kenning-edge-automl.UARTPath": {
+          "type": "string",
+          "order": 8,
+          "description": "Path to the board's UART used for communication (optional, required only if wildcard defined by Kenning do not match any path)",
+          "default": ""
+        },
+        "kenning-edge-automl.ai8x-training": {
+          "type": "string",
+          "order": 10,
+          "markdownDescription": "Path to the local [ai8x-training](https://github.com/analogdevicesinc/ai8x-training/) repository with prepared virtual environment under `./.venv` (optional, needed for deploying models using AI8X runtime)",
+          "default": ""
+        },
+        "kenning-edge-automl.ai8x-synthesis": {
+          "type": "string",
+          "order": 11,
+          "markdownDescription": "Path to the local [ai8x-synthesis](https://github.com/analogdevicesinc/ai8x-synthesis/) repository with prepared virtual environment under `./.venv` (optional, needed for deploying models using AI8X runtime)",
           "default": ""
         }
       }

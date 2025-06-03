@@ -28,7 +28,7 @@ function prepareRunDir(runsDir: string) {
     return path.join(runsDir, runId);
 }
 
-export function runScenario(configurationView: ConfigurationViewProvider, platform: string, datasetPath: string, timeLimit: string, appSize: string, baseScenario: ScenarioTemplate) {
+export function runScenario(configurationView: ConfigurationViewProvider, platform: string, optimizer: string, datasetPath: string, timeLimit: string, appSize: string | undefined, simulate: boolean, baseScenario: ScenarioTemplate) {
     KChannel.show();
 
     const pluginConfig = vscode.workspace.getConfiguration("kenning-edge-automl");
@@ -51,8 +51,10 @@ export function runScenario(configurationView: ConfigurationViewProvider, platfo
         runDir,
         pluginConfig,
         platform,
+        optimizer,
         datasetPath,
         timeLimit,
+        simulate,
         appSize,
     );
 

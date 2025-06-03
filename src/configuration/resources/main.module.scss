@@ -11,6 +11,7 @@
 @import "@vscode-elements/elements-lite/components/select/select.css";
 @import "@vscode-elements/elements-lite/components/label/label.css";
 @import "@vscode-elements/elements-lite/components/form-container/form-container.css";
+@import "@vscode-elements/elements-lite/components/checkbox/checkbox.css";
 
 @import "@vscode/codicons/dist/codicon.css";
 
@@ -55,7 +56,8 @@ body {
   margin: 0 auto;
 }
 
-.kenning-configuration-platform {
+.kenning-configuration-platform,
+.kenning-configuration-optimizer {
   width: 100%;
 }
 
@@ -96,4 +98,27 @@ body {
 
 .vscode-button.block {
   max-width: 100%;
+}
+
+.vscode-checkbox {
+
+  .icon-checked,
+  .icon-indeterminate {
+    display: none !important;
+  }
+
+  input[type="checkbox"] {
+    &:checked+label .icon-checked {
+      display: block !important;
+    }
+
+    &:indeterminate+label .icon-indeterminate {
+      display: block !important;
+    }
+  }
+
+  &:has(input[type="checkbox"]:disabled) {
+    opacity: 0.4;
+    pointer-events: none;
+  }
 }
