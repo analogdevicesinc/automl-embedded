@@ -23,23 +23,6 @@ Video below demonstrates AutoML training, followed by evaluation of generated mo
 
 [![Watch the video](https://github.com/user-attachments/assets/c0a1100c-be29-4109-bc01-c2246af5d2d3)](https://github.com/user-attachments/assets/c0a1100c-be29-4109-bc01-c2246af5d2d3)
 
-## Building the plugin
-
-To build a VSIX package containing the plugin, first you need to install `yarn` - follow [Yarn installation](https://classic.yarnpkg.com/lang/en/docs/install) instructions for your system.
-Once `yarn` is installed, run the following commands:
-
-```bash
-# Install dependencies
-yarn install
-# Prepare package with plugin
-yarn vsix-package
-```
-
-The plugin should be available under `automl-embedded-0.0.1.vsix`.
-In order to install it, go to Extensions, click `Install from VSIX...` and choose the newly built package.
-
-![Install plugin from VSIX package](./images/install_vsix.png)
-
 ## Plugin requirements
 
 * Visual Studio Code
@@ -255,3 +238,21 @@ AutoML model definitions used by this plugin are:
 * [Ai8xAnomalyDetectionCNN](https://github.com/antmicro/kenning/blob/main/kenning/modelwrappers/anomaly_detection/ai8x_cnn.py) - used for convolutional neural networks that can be deployed on MAX78002's CNN Accelerator
 
 To create custom models that can be configured and modified by the AutoML flow, follow the [Adjusting ModelWrapper for AutoML flow](https://antmicro.github.io/kenning/kenning-development.html#adjusting-modelwrapper-for-automl-flow) chapter in [Kenning documentation](https://antmicro.github.io/kenning/index.html).
+
+## Building the plugin
+
+To build a VSIX package containing the plugin, first you need to install `yarn` - follow [Yarn installation](https://classic.yarnpkg.com/lang/en/docs/install) instructions for your system.
+Once `yarn` is installed, run the following commands:
+
+```bash
+# Install dependencies
+yarn install
+# Prepare package with plugin
+yarn vsix-package
+```
+
+The plugin should be available under `automl-embedded-0.0.1.vsix`.
+In order to install it, go to Extensions, click `Install from VSIX...` and choose the newly built package.
+
+![Install plugin from VSIX package](./images/install_vsix.png)
+
