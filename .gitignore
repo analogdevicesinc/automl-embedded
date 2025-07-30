@@ -9,4 +9,4 @@ resources/codicons/**
 zephyr-workspace
 
 test/mock_kenning/build
-test/mock_kenning/**/*.egg-info
+test/mock_kenning/**/*.egg-info.DS_Store
