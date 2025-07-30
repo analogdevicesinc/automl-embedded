@@ -21,7 +21,7 @@ VSCode Extension for training, optimizing and deploying tailored models on Edge 
 
 Video below demonstrates AutoML training, followed by evaluation of generated models on [MAX78002 Evaluation Kit](https://www.analog.com/en/resources/evaluation-hardware-and-software/evaluation-boards-kits/max78002evkit.html) and overview of the generated AutoML summary report.
 
-[![Watch the video](https://github.com/user-attachments/assets/c0a1100c-be29-4109-bc01-c2246af5d2d3)](https://github.com/user-attachments/assets/c0a1100c-be29-4109-bc01-c2246af5d2d3)
+[![Watch the video](https://github.com/user-attachments/assets/0d98f4b1-b952-4e18-badf-da9b94bf0459)](https://github.com/user-attachments/assets/0d98f4b1-b952-4e18-badf-da9b94bf0459)
 
 ## Building the plugin
 
