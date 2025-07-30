@@ -1,0 +1,66 @@
+site_name: AutoML Embedded
+copyright: Copyright &copy; 2025 Analog Devices Inc. All Rights Reserved.
+repo_url: 
+edit_uri: https://github.com/analogdevicesinc/automl-embedded/
+theme:
+  name: harmonic
+
+theme:
+  name: harmonic
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - content.tooltips
+    - content.code.copy
+
+extra:
+  version:
+    provider: mike
+
+extra_css:
+  - assets/templates/pdf_overrides.css
+
+plugins:
+  - glightbox
+  - material/search
+  - mike:
+      alias_type: copy
+  - print-site:
+      enabled: !ENV [ENABLE_PDF_EXPORT, false]
+      add_cover_page: true
+      enumerate_headings: false
+      print_page_title: AutoML for Embedded Development
+      cover_page_template: "docs/assets/templates/cover_page.tpl"
+
+nav:
+  - User guide:
+    - user-guide/index.md
+    - About: user-guide/about.md
+    - Installation: 
+      - user-guide/installation/index.md
+      - Docker-based installation: user-guide/installation/docker-install.md
+      - Native Linux installation: user-guide/installation/linux-install.md
+      - VS Code plugin installation: user-guide/installation/vs-code-plugin.install.md
+    - Getting Started: user-guide/getting-started.md
+  - Release notes:
+    - release-notes/index.md
+    - 0.0.0: release-notes/0.0.0.md
+
+not_in_nav: |
+  glossary.md
+  index.md
+
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - footnotes
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.snippets:
+      auto_append:
+        - docs/glossary.md
+  - pymdownx.details
+  - pymdownx.superfences
