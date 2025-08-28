@@ -1,6 +1,6 @@
 site_name: AutoML Embedded
 copyright: Copyright &copy; 2025 Analog Devices Inc. All Rights Reserved.
-repo_url: 
+repo_url:
 edit_uri: https://github.com/analogdevicesinc/automl-embedded/
 theme:
   name: harmonic
@@ -36,7 +36,7 @@ nav:
   - User guide:
     - user-guide/index.md
     - About: user-guide/about.md
-    - Installation: 
+    - Installation:
       - user-guide/installation/index.md
       - Docker-based installation: user-guide/installation/docker-install.md
       - Native Linux installation: user-guide/installation/linux-install.md

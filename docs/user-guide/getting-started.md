@@ -64,11 +64,11 @@ After completion, view the report in the REPORTS section:
 2. For Zephyr projects using Kenning Zephyr Runtime, build with:
 
    ```bash
-   west build \ 
-     -p always \ 
-     -b max32690evkit/max32690/m4 app -- \ 
-     -DEXTRA_CONF_FILE="tflite.conf" \ 
-     -DCONFIG_KENNING_MODEL_PATH="/workspaces/kenning-zephyr-runtime-example-app/model.tflite" 
+   west build \
+     -p always \
+     -b max32690evkit/max32690/m4 app -- \
+     -DEXTRA_CONF_FILE="tflite.conf" \
+     -DCONFIG_KENNING_MODEL_PATH="/workspaces/kenning-zephyr-runtime-example-app/model.tflite"
    ```
 
 3. Optionally use VS Code tasks (example: Build Zephyr app).

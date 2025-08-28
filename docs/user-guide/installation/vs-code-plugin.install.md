@@ -45,25 +45,25 @@ date: 2025-07-08
 1. Create or Open Zephyr Project:
 
     ```bash
-    # Example: Clone sample project 
-    git clone https://github.com/antmicro/kenning-zephyr-runtime-example-app.git 
-    cd kenning-zephyr-runtime-example-app 
-    code . 
-    ```  
+    # Example: Clone sample project
+    git clone https://github.com/antmicro/kenning-zephyr-runtime-example-app.git
+    cd kenning-zephyr-runtime-example-app
+    code .
+    ```
 
 2. Initialize Zephyr Dependencies:
 
     ```bash
-    # In VS Code terminal 
-    west init -l app 
-    west update 
-    west zephyr-export 
-    ```  
+    # In VS Code terminal
+    west init -l app
+    west update
+    west zephyr-export
+    ```
 
 3. Test Plugin Functionality:
 
     - Click the AutoML icon (K) in the left sidebar
-    - Configure a simple AutoML task:  
+    - Configure a simple AutoML task:
         - [Dataset](https://dl.antmicro.com/kenning/datasets/anomaly_detection/cats_nano.csv)
         - Platform: MAX32690 Evaluation Kit
         - Runtime: TFLite
