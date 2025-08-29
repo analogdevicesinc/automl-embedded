@@ -71,10 +71,12 @@ For local development, the following tools are needed:
 
 * [Kenning Zephyr Runtime dependencies](https://github.com/antmicro/kenning-zephyr-runtime/) - follow instructions in the README ([Building the project](https://github.com/antmicro/kenning-zephyr-runtime/?tab=readme-ov-file#building-the-project)) to install all dependencies.
 * [Kenning](https://github.com/antmicro/kenning) - the minimal Kenning setup needed for the plugin can be installed using e.g. `pipx` (this method requires separate [dts2repl](https://github.com/antmicro/dts2repl) installation as executable):
+
   ```bash
   pipx install --force "kenning[tvm,torch,anomaly_detection,auto_pytorch,tensorflow,tflite,reports,renode,uart] @ git+https://github.com/antmicro/kenning.git"
   pipx install "dts2repl @ git+https://github.com/antmicro/dts2repl@main#egg=dts2repl"
   ```
+
   Another way is to set up a virtual environment with Kenning and Kenning Zephyr Runtime that will be accessible to VSCode.
 * [Renode](https://renode.readthedocs.io/en/latest/introduction/installing.html) - follow instructions.
   Later, configure one of the listed environment variables in [pyrenode3 tool](https://github.com/antmicro/pyrenode3) to point to Renode installation path (build directory, package or Renode binary).
@@ -133,7 +135,7 @@ cd kenning-zephyr-runtime-example-app/
 
 Then, open the project in VSCode:
 
-```
+```bash
 code .
 ```
 
@@ -143,7 +145,7 @@ Once the Dev Container is ready, install the VSCode Extension in the Dev Contain
 
 After plugin installation, open Terminal in VSCode (it will use the environment from the Dev Container) and run the following commands in the root project directory:
 
-```
+```bash
 west init -l app
 west update
 west zephyr-export
@@ -155,6 +157,7 @@ The fetched Kenning Zephyr Runtime repository will be used by the plugin to buil
 ### Setting up the plugin
 
 The plugin introduces a few configuration options that can be found in Settings (`File->Preferences->Settings`) under the `Extensions->Kenning Edge AutoML` section:
+
 * **Kenning Zephyr Runtime Path** - has to point to a valid directory with Kenning Zephyr Runtime (e.g. `/workspaces/kenning-zephyr-runtime-example-app/kenning-zephyr-runtime/` assuming `kenning-zephyr-runtime-example-app` is opened as a working directory in a Dev Container)
 * **Number Of Output Models** - maximal number of model candidates to include in the final evaluation
 * **Kenning Scenario Path** (optional) - path to a base [Kenning scenario](https://antmicro.github.io/kenning/json-scenarios.html), the default one is defined as `DEFAULT_BASE_SCENARIO` in [AutoML scenario template](src/kenning/autoMLScenarioTemplate.ts).
@@ -197,6 +200,7 @@ Once the AutoML process finishes successfully, a new report should appear in `RE
 ![Plugin reports view](./images/plugin_reports.png)
 
 The view with reports follows the structure:
+
 * ![session-icon](./images/session-icon.png) `run_` represents a single AutoML session
   * The scale button ![scale-icon](./images/scale-icon.png) opens a summary report for a given run
   * Under the `run_` entry, the ![model-icon](./images/model-icon.png) `automl_conf_` entities represent individual models
