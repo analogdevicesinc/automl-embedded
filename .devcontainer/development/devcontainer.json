@@ -1,6 +1,6 @@
 {
 	// container for running Kenning
-	"name": "AutoML",
+	"name": "automl-embedded development",
 	"build": {
 		"context": "../..",
 		"dockerfile": "Dockerfile",
