@@ -1,0 +1,17 @@
+{
+	"name": "AutoML",
+	"build": {
+		"context": "../..",
+		"dockerfile": "../../environments/automl/Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": ["AnalogDevices.automl-embedded"]
+		}
+	},
+	"runArgs": [
+		"--device", "/dev/ttyUSB0",
+        "--device", "/dev/ttyACM0",
+        "--privileged"
+    ]
+}
