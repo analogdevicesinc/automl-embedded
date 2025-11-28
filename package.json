@@ -26,7 +26,7 @@
           "type": "string",
           "order": 1,
           "markdownDescription": "Path to [Kenning Zephyr Runtime](https://github.com/antmicro/kenning-zephyr-runtime/) repository",
-          "default": "/workspaces/kenning-zephyr-runtime-example-app/kenning-zephyr-runtime/"
+          "default": "/workspaces/kenning-zephyr-runtime/"
         },
         "kenning-edge-automl.zephyrSDKPath": {
           "type": "string",
