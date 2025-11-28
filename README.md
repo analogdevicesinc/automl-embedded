@@ -55,11 +55,9 @@ In order to install it, go to Extensions, click `Install from VSIX...` and choos
 
 The easiest way to set up the environment for application and AutoML development is to develop inside a container using [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers).
 
-Sample Docker image definition can be found in [Example project using Kenning Zephyr Runtime](https://github.com/antmicro/kenning-zephyr-runtime-example-app), under [environments/Dockerfile](https://github.com/antmicro/kenning-zephyr-runtime-example-app/blob/main/environments/Dockerfile).
+This repository provides Dev Container definitions for general use and for plugin development. The Dev Container for general use is named `AutoML`, and is defined in `.devcontainer/automl/devcontainer.json`. The Dev Container for development is named `automl-embedded development` and is defined in `.devcontainer/development/devcontainer.json`.
 
-The Dev Container definition can be found in [.devcontainer/automl/devcontainer.json](https://github.com/antmicro/kenning-zephyr-runtime-example-app/blob/main/.devcontainer/automl/devcontainer.json) (VSCode Dev Container configuration).
-
-To start the Dev Container, click the `Reopen in Container` button from the pop-up or run the `DevContainers: Reopen in Container` action.
+To start the Dev Container, click the `Reopen in Container` button from the pop-up or run the `DevContainers: Reopen in Container` action. You'll be prompted to select which container you want to open. For general use, select "AutoML".
 
 ![Reopen in container](./images/reopen_container.png)
 
