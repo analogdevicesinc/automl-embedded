@@ -3,7 +3,7 @@
 	"image": "automl-embedded:2025.1",
 	"customizations": {
 		"vscode": {
-			"extensions": ["AnalogDevices.automl-embedded"]
+			"extensions": ["AnalogDevices.automl-embedded@1.0.0"]
 		}
 	},
 	"runArgs": [
