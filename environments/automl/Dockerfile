@@ -18,8 +18,8 @@ RUN wget -O /tmp/requirements.txt https://raw.githubusercontent.com/zephyrprojec
     $PIPINST -r /tmp/requirements.txt && \
     rm /tmp/requirements.txt
 
-ENV ZEPHYR_SDK_INSTALL_DIR /opt/zephyr-sdk
-ENV ZEPHYR_SDK_PATH /opt/zephyr-sdk
+ENV ZEPHYR_SDK_INSTALL_DIR=/opt/zephyr-sdk
+ENV ZEPHYR_SDK_PATH=/opt/zephyr-sdk
 
 RUN $PIPINST \
     "kenning[anomaly_detection,iree,tvm,tensorflow,tflite,torch,reports,renode,uart,auto_pytorch] @ git+https://github.com/antmicro/kenning.git"
