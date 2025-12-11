@@ -1,0 +1,12 @@
+{
+	"name": "AutoML",
+	"build": {
+		"context": "../..",
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": ["AnalogDevices.automl-embedded@1.0.0"]
+		}
+	}
+}
