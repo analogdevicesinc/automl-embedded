@@ -55,11 +55,12 @@ In order to install it, go to Extensions, click `Install from VSIX...` and choos
 
 The easiest way to set up the environment for application and AutoML development is to develop inside a container using [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers).
 
-Sample Docker image definition can be found in [Example project using Kenning Zephyr Runtime](https://github.com/antmicro/kenning-zephyr-runtime-example-app), under [environments/Dockerfile](https://github.com/antmicro/kenning-zephyr-runtime-example-app/blob/main/environments/Dockerfile).
+This repository provides two Dev Container definitions: one for general use and one for developing the AutoML VS Code extension. 
 
-The Dev Container definition can be found in [.devcontainer/automl/devcontainer.json](https://github.com/antmicro/kenning-zephyr-runtime-example-app/blob/main/.devcontainer/automl/devcontainer.json) (VSCode Dev Container configuration).
+- The Dev Container for general use is named `AutoML`, and is defined in `.devcontainer/automl/devcontainer.json`.  
+- The Dev Container for extension development is named `automl-embedded extension development`, and is defined in `.devcontainer/development/devcontainer.json`.
 
-To start the Dev Container, click the `Reopen in Container` button from the pop-up or run the `DevContainers: Reopen in Container` action.
+To start the Dev Container, click the `Reopen in Container` button in VS Code when the pop-up appears, or run the `DevContainers: Reopen in Container` command from the Command Palette. You'll then be prompted to select which container you want to open. For general use, select "AutoML".
 
 ![Reopen in container](./images/reopen_container.png)
 
@@ -129,8 +130,8 @@ First, clone the repository:
 
 ```bash
 mkdir workspace && cd workspace
-git clone https://github.com/antmicro/kenning-zephyr-runtime-example-app.git
-cd kenning-zephyr-runtime-example-app/
+git clone https://github.com/analogdevicesinc/automl-embedded.git
+cd automl-embedded
 ```
 
 Then, open the project in VSCode:
@@ -143,10 +144,10 @@ Assuming the Dev Container Extension is installed in VSCode, the previously ment
 
 Once the Dev Container is ready, install the VSCode Extension in the Dev Container.
 
-After plugin installation, open Terminal in VSCode (it will use the environment from the Dev Container) and run the following commands in the root project directory:
+After installing the plugin, open a Terminal in VS Code. The terminal uses the Dev Container environment. Run the following commands in the automl-embedded project directory, which is opened by default:
 
 ```bash
-west init -l app
+west init -l .
 west update
 west zephyr-export
 ```
@@ -158,7 +159,7 @@ The fetched Kenning Zephyr Runtime repository will be used by the plugin to buil
 
 The plugin introduces a few configuration options that can be found in Settings (`File->Preferences->Settings`) under the `Extensions->Kenning Edge AutoML` section:
 
-* **Kenning Zephyr Runtime Path** - has to point to a valid directory with Kenning Zephyr Runtime (e.g. `/workspaces/kenning-zephyr-runtime-example-app/kenning-zephyr-runtime/` assuming `kenning-zephyr-runtime-example-app` is opened as a working directory in a Dev Container)
+* **Kenning Zephyr Runtime Path** - has to point to a valid directory with Kenning Zephyr Runtime (e.g. `/workspaces/kenning-zephyr-runtime/`).
 * **Number Of Output Models** - maximal number of model candidates to include in the final evaluation
 * **Kenning Scenario Path** (optional) - path to a base [Kenning scenario](https://antmicro.github.io/kenning/json-scenarios.html), the default one is defined as `DEFAULT_BASE_SCENARIO` in [AutoML scenario template](src/kenning/autoMLScenarioTemplate.ts).
 * **Zephyr SDK Path** (optional) - path to the [Zephyr SDK](https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html) directory, can also be passed with the `$ZEPHYR_SDK_PATH` environmental variable.
