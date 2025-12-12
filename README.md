@@ -146,7 +146,7 @@ The plugin introduces a few configuration options that can be found in Settings 
 * **PyRenode Path** (optional) - path to the Renode package or binary, can also be configured with the `PYRENODE_PKG` or `PYRENODE_BIN` environmental variables.
   Check [pyrenode3 project](https://github.com/antmicro/pyrenode3) for available variables and options.
   Renode packages are available at [builds.renode.io](https://builds.renode.io).
-* **UART Path** (optional) - path to the board's UART used for communication between Kenning and Kenning Zephyr Runtime.
+* **UART Path** (optional) - path to the board's UART used for communication between Kenning and Kenning Zephyr Runtime (e.g. `/dev/ttyUSB0`). It is recommended to set this field to the corresponding device, as it's used as a fall-back mechanism when automatic detection fails. Ensure that the device has been forwarded to the container (e.g. verify that `ls /dev/` lists your device's name). See [Docker-based installation](docs/user-guide/installation/docker-install.md) for details on using the `runArgs` setting to forward devices to Dev Containers.
 * **OpenOCD Path** (optional) - path to the OpenOCD binary from [MaximMicrosSDK](https://github.com/analogdevicesinc/msdk), required for evaluation on Analog Devices hardware, can also be provided via `$PATH`.
 * **ai8x-training** (optional) - location of the [ai8x-training](https://github.com/analogdevicesinc/ai8x-training) repository, required for the `ai8x` runtime on the MAX78002 board.
 * **ai8x-synthesis** (optional) - location of the [ai8x-synthesis](https://github.com/analogdevicesinc/ai8x-synthesis) repository, required for the `ai8x` runtime on the MAX78002 board.
