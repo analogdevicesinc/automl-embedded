@@ -66,6 +66,10 @@ To start the Dev Container, click the `Reopen in Container` button in VS Code wh
 
 This will automatically build the image defined by Dockerfile and reopen the working directory inside the container, including all necessary software for the plugin.
 
+#### Installing MSDK
+
+The MSDK is required to perform training on Analog Devices physical boards, such as the MAX32690 EV kit and MAX78002 EV kit, and is not installed in the Dev Container by default. The Dockerfile may be modified by the user to install the MSDK and set the required environment variables. For details, refer to [Docker-based installation](docs/user-guide/installation/docker-install.md). Installation and use are subject to acceptance of Analog Devices license terms.
+
 #### Prepare ai8x repositories
 
 **NOTE:** The steps below are required only for deploying models on MAX78002 using the AI8X runtime running on the CNN accelerator.
