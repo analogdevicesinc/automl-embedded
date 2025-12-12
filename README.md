@@ -66,25 +66,6 @@ To start the Dev Container, click the `Reopen in Container` button in VS Code wh
 
 This will automatically build the image defined by Dockerfile and reopen the working directory inside the container, including all necessary software for the plugin.
 
-### Setting up a local environment
-
-For local development, the following tools are needed:
-
-* [Kenning Zephyr Runtime dependencies](https://github.com/antmicro/kenning-zephyr-runtime/) - follow instructions in the README ([Building the project](https://github.com/antmicro/kenning-zephyr-runtime/?tab=readme-ov-file#building-the-project)) to install all dependencies.
-* [Kenning](https://github.com/antmicro/kenning) - the minimal Kenning setup needed for the plugin can be installed using e.g. `pipx` (this method requires separate [dts2repl](https://github.com/antmicro/dts2repl) installation as executable):
-
-  ```bash
-  pipx install --force "kenning[tvm,torch,anomaly_detection,auto_pytorch,tensorflow,tflite,reports,renode,uart] @ git+https://github.com/antmicro/kenning.git"
-  pipx install "dts2repl @ git+https://github.com/antmicro/dts2repl@main#egg=dts2repl"
-  ```
-
-  Another way is to set up a virtual environment with Kenning and Kenning Zephyr Runtime that will be accessible to VSCode.
-* [Renode](https://renode.readthedocs.io/en/latest/introduction/installing.html) - follow instructions.
-  Later, configure one of the listed environment variables in [pyrenode3 tool](https://github.com/antmicro/pyrenode3) to point to Renode installation path (build directory, package or Renode binary).
-
-**NOTE:** Kenning supports Python 3.10 or 3.11.
-In case of different Python versions available in the system, use e.g. [pyenv](https://github.com/pyenv/pyenv) to create an environment with Python 3.11 or use additional options with `pipx` installation: `--python 3.11 --fetch-missing-python`.
-
 #### Prepare ai8x repositories
 
 **NOTE:** The steps below are required only for deploying models on MAX78002 using the AI8X runtime running on the CNN accelerator.
