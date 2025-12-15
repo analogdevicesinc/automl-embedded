@@ -1,0 +1,29 @@
+manifest:
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+    - name: antmicro
+      url-base: https://github.com/antmicro
+    - name: dmlc
+      url-base: https://github.com/dmlc
+
+  projects:
+    - name: kenning-zephyr-runtime
+      remote: antmicro
+      revision: 3d7624fd3d20aa701be5a19b45611759c88609e5
+      import:
+        path-allowlist:
+          - tvm
+          - tflite-micro
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: 732a3a5c66553969ea01bacec19e2820b9d6b2e2
+      import:
+        path-allowlist:
+          - modules/debug/*
+          - modules/hal/*
+          - modules/lib/*
+          - modules/tee/tf-m/*
+    - name: dlpack
+      remote: dmlc
+      revision: 93c8f2a3c774b84af6f652b1992c48164fae60fc

@@ -13,3 +13,6 @@ test/mock_kenning/**/*.egg-info.DS_Store
 test/mock_kenning/**/*.egg-info
 /site
 .venv/
+
+.kenning/
+saved_model/

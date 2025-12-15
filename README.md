@@ -55,34 +55,20 @@ In order to install it, go to Extensions, click `Install from VSIX...` and choos
 
 The easiest way to set up the environment for application and AutoML development is to develop inside a container using [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers).
 
-Sample Docker image definition can be found in [Example project using Kenning Zephyr Runtime](https://github.com/antmicro/kenning-zephyr-runtime-example-app), under [environments/Dockerfile](https://github.com/antmicro/kenning-zephyr-runtime-example-app/blob/main/environments/Dockerfile).
+This repository provides two Dev Container definitions: one for general use and one for developing the AutoML VS Code extension. 
 
-The Dev Container definition can be found in [.devcontainer/automl/devcontainer.json](https://github.com/antmicro/kenning-zephyr-runtime-example-app/blob/main/.devcontainer/automl/devcontainer.json) (VSCode Dev Container configuration).
+- The Dev Container for general use is named `AutoML`, and is defined in `.devcontainer/automl/devcontainer.json`.  
+- The Dev Container for extension development is named `automl-embedded extension development`, and is defined in `.devcontainer/development/devcontainer.json`.
 
-To start the Dev Container, click the `Reopen in Container` button from the pop-up or run the `DevContainers: Reopen in Container` action.
+To start the Dev Container, click the `Reopen in Container` button in VS Code when the pop-up appears, or run the `DevContainers: Reopen in Container` command from the Command Palette. You'll then be prompted to select which container you want to open. For general use, select "AutoML".
 
 ![Reopen in container](./images/reopen_container.png)
 
 This will automatically build the image defined by Dockerfile and reopen the working directory inside the container, including all necessary software for the plugin.
 
-### Setting up a local environment
+#### Installing MSDK
 
-For local development, the following tools are needed:
-
-* [Kenning Zephyr Runtime dependencies](https://github.com/antmicro/kenning-zephyr-runtime/) - follow instructions in the README ([Building the project](https://github.com/antmicro/kenning-zephyr-runtime/?tab=readme-ov-file#building-the-project)) to install all dependencies.
-* [Kenning](https://github.com/antmicro/kenning) - the minimal Kenning setup needed for the plugin can be installed using e.g. `pipx` (this method requires separate [dts2repl](https://github.com/antmicro/dts2repl) installation as executable):
-
-  ```bash
-  pipx install --force "kenning[tvm,torch,anomaly_detection,auto_pytorch,tensorflow,tflite,reports,renode,uart] @ git+https://github.com/antmicro/kenning.git"
-  pipx install "dts2repl @ git+https://github.com/antmicro/dts2repl@main#egg=dts2repl"
-  ```
-
-  Another way is to set up a virtual environment with Kenning and Kenning Zephyr Runtime that will be accessible to VSCode.
-* [Renode](https://renode.readthedocs.io/en/latest/introduction/installing.html) - follow instructions.
-  Later, configure one of the listed environment variables in [pyrenode3 tool](https://github.com/antmicro/pyrenode3) to point to Renode installation path (build directory, package or Renode binary).
-
-**NOTE:** Kenning supports Python 3.10 or 3.11.
-In case of different Python versions available in the system, use e.g. [pyenv](https://github.com/pyenv/pyenv) to create an environment with Python 3.11 or use additional options with `pipx` installation: `--python 3.11 --fetch-missing-python`.
+The MSDK is required to perform training on Analog Devices physical boards, such as the MAX32690 EV kit and MAX78002 EV kit, and is not installed in the Dev Container by default. The Dockerfile may be modified by the user to install the MSDK and set the required environment variables. For details, refer to [Docker-based installation](docs/user-guide/installation/docker-install.md). Installation and use are subject to acceptance of Analog Devices license terms.
 
 #### Prepare ai8x repositories
 
@@ -116,12 +102,10 @@ pip3 install -r requirements.txt
 export AI8X_SYNTHESIS_PATH=$(pwd)
 ```
 
-## Using the plugin - example Zephyr project
+## Using the plugin
 
 The plugin is originally meant for Zephyr applications.
 The easiest way to integrate generated models is to use Kenning Zephyr Runtime.
-
-A sample application working with this plugin can be found in the [kenning-zephyr-runtime-example-app repository](https://github.com/antmicro/kenning-zephyr-runtime-example-app).
 
 ### Project and environment preparations
 
@@ -129,8 +113,8 @@ First, clone the repository:
 
 ```bash
 mkdir workspace && cd workspace
-git clone https://github.com/antmicro/kenning-zephyr-runtime-example-app.git
-cd kenning-zephyr-runtime-example-app/
+git clone https://github.com/analogdevicesinc/automl-embedded.git
+cd automl-embedded
 ```
 
 Then, open the project in VSCode:
@@ -143,10 +127,10 @@ Assuming the Dev Container Extension is installed in VSCode, the previously ment
 
 Once the Dev Container is ready, install the VSCode Extension in the Dev Container.
 
-After plugin installation, open Terminal in VSCode (it will use the environment from the Dev Container) and run the following commands in the root project directory:
+After installing the plugin, open a Terminal in VS Code. The terminal uses the Dev Container environment. Run the following commands in the automl-embedded project directory, which is opened by default:
 
 ```bash
-west init -l app
+west init -l .
 west update
 west zephyr-export
 ```
@@ -158,7 +142,7 @@ The fetched Kenning Zephyr Runtime repository will be used by the plugin to buil
 
 The plugin introduces a few configuration options that can be found in Settings (`File->Preferences->Settings`) under the `Extensions->Kenning Edge AutoML` section:
 
-* **Kenning Zephyr Runtime Path** - has to point to a valid directory with Kenning Zephyr Runtime (e.g. `/workspaces/kenning-zephyr-runtime-example-app/kenning-zephyr-runtime/` assuming `kenning-zephyr-runtime-example-app` is opened as a working directory in a Dev Container)
+* **Kenning Zephyr Runtime Path** - has to point to a valid directory with Kenning Zephyr Runtime (e.g. `/workspaces/kenning-zephyr-runtime/`).
 * **Number Of Output Models** - maximal number of model candidates to include in the final evaluation
 * **Kenning Scenario Path** (optional) - path to a base [Kenning scenario](https://antmicro.github.io/kenning/json-scenarios.html), the default one is defined as `DEFAULT_BASE_SCENARIO` in [AutoML scenario template](src/kenning/autoMLScenarioTemplate.ts).
 * **Zephyr SDK Path** (optional) - path to the [Zephyr SDK](https://docs.zephyrproject.org/latest/develop/toolchains/zephyr_sdk.html) directory, can also be passed with the `$ZEPHYR_SDK_PATH` environmental variable.
@@ -166,7 +150,7 @@ The plugin introduces a few configuration options that can be found in Settings 
 * **PyRenode Path** (optional) - path to the Renode package or binary, can also be configured with the `PYRENODE_PKG` or `PYRENODE_BIN` environmental variables.
   Check [pyrenode3 project](https://github.com/antmicro/pyrenode3) for available variables and options.
   Renode packages are available at [builds.renode.io](https://builds.renode.io).
-* **UART Path** (optional) - path to the board's UART used for communication between Kenning and Kenning Zephyr Runtime.
+* **UART Path** (optional) - path to the board's UART used for communication between Kenning and Kenning Zephyr Runtime (e.g. `/dev/ttyUSB0`). It is recommended to set this field to the corresponding device, as it's used as a fall-back mechanism when automatic detection fails. Ensure that the device has been forwarded to the container (e.g. verify that `ls /dev/` lists your device's name). See [Docker-based installation](docs/user-guide/installation/docker-install.md) for details on using the `runArgs` setting to forward devices to Dev Containers.
 * **OpenOCD Path** (optional) - path to the OpenOCD binary from [MaximMicrosSDK](https://github.com/analogdevicesinc/msdk), required for evaluation on Analog Devices hardware, can also be provided via `$PATH`.
 * **ai8x-training** (optional) - location of the [ai8x-training](https://github.com/analogdevicesinc/ai8x-training) repository, required for the `ai8x` runtime on the MAX78002 board.
 * **ai8x-synthesis** (optional) - location of the [ai8x-synthesis](https://github.com/analogdevicesinc/ai8x-synthesis) repository, required for the `ai8x` runtime on the MAX78002 board.
@@ -188,7 +172,7 @@ Running an AutoML flow can be summarized in a few simple steps:
   * In `Time limit`, set a time limit for the AutoML part of the run (in minutes)
   * Define `Application size` - e.g. 80 KB
   * Choose `Evaluate models in simulation` to run evaluation on the board simulated with Renode, instead of the real one
-  * (Optional) In `Selected model path` set target path where the selected model should be saved (e.g. `/workspaces/kenning-zephyr-runtime-example-app/model.tflite` in Dev Container environment)
+  * (Optional) In `Selected model path` set target path where the selected model should be saved (e.g. `/workspaces/model.tflite` in Dev Container environment)
 
 * To run AutoML, click `Run AutoML Optimization`
 * A successful execution finishes with `Kenning process exited with code 0`
@@ -208,27 +192,11 @@ The view with reports follows the structure:
     * The file button ![file-code-icon](./images/file-code-icon.png) opens configuration for a given model
     * Each model contains a summary of its metrics calculated on a training set
 
-### Building the application with selected model
+## Running the generated models
 
-Once the preferred model is picked, it can be used in the final application.
-With Kenning Zephyr Runtime, the path to the model can be provided using the `-DCONFIG_KENNING_MODEL_PATH` parameter when running `west build`, e.g.:
+A sample application that runs the models generated by the AutoML plugin can be found in the [kenning-zephyr-runtime-example-app repository](https://github.com/antmicro/kenning-zephyr-runtime-example-app) repository.
 
-```bash
-west build \
-  -p always \
-  -b max32690evkit/max32690/m4 app -- \
-  -DEXTRA_CONF_FILE="tflite.conf" \
-  -DCONFIG_KENNING_MODEL_PATH=\"/workspaces/kenning-zephyr-runtime-example-app/model.tflite\"
-```
-
-Where `/workspaces/kenning-zephyr-runtime-example-app/model.tflite` is a path to the model selected in the AutoML plugin.
-
-In the example project used here, in [.vscode/tasks.json](.vscode/tasks.json) there are the following tasks:
-
-* `Build Zephyr app` - builds the application implemented in the project with the selected model,
-* `Simulate app in Renode` - simulates the built application.
-
-To flash the actual board, follow the flashing instructions for the specific board.
+Refer to the application's repository for build and usage instructions.
 
 ## Adjusting AutoML scenarios
 
