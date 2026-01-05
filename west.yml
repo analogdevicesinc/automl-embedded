@@ -10,11 +10,12 @@ manifest:
   projects:
     - name: kenning-zephyr-runtime
       remote: antmicro
-      revision: 3d7624fd3d20aa701be5a19b45611759c88609e5
+      revision: aefffa8969e4b79b10de8a05085143144eca974b
       import:
         path-allowlist:
           - tvm
           - tflite-micro
+          - executorch
     - name: zephyr
       remote: zephyrproject-rtos
       revision: 732a3a5c66553969ea01bacec19e2820b9d6b2e2

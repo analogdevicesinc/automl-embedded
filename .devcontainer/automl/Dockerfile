@@ -1,6 +1,6 @@
-FROM ghcr.io/antmicro/kenning-zephyr-runtime@sha256:6a1966f02dc9e76ab984062c7fb50792ae89bcee6b79fe8f9569bb5b45514f28
+FROM ghcr.io/antmicro/kenning-zephyr-runtime@sha256:b36e57544d7a8f235af8134938b1297fb48f4458dd497692b79845e4ff8eaa8c
 
-ARG KENNING_ZEPHYR_RUNTIME_VERSION=69a0a51022b9e299085d28f123a8a60c78f0ec10
+ARG KENNING_ZEPHYR_RUNTIME_VERSION=aefffa8969e4b79b10de8a05085143144eca974b
 
 # Ensure ZEPHYR_VERSION matches the one specified in the west.yml file.
 ARG ZEPHYR_VERSION=732a3a5c66553969ea01bacec19e2820b9d6b2e2
