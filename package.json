@@ -198,15 +198,17 @@
     "watch-tests": "tsc -p ./src/test -w --outDir out_tests",
     "pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
     "check-types": "tsc --noEmit",
-    "vsix-package": "vsce package --yarn --dependencies",
+    "vsix-package": "vsce package --no-yarn --dependencies",
     "lint": "eslint src --fix",
+    "list": "yarn info",
     "test": "vscode-test",
     "vite:extension": "vite build --mode extension",
     "watch:extension": "yarn vite:extension --watch",
     "build:extension": "yarn vite:extension",
-    "ui-test": "extest setup-and-run \"./out_tests/ui-test/*.test.js\" --yarn --mocha_config .mocharc.yml"
+    "ui-test": "extest setup-and-run \"./out_tests/ui-test/*.test.js\" --mocha_config .mocharc.yml"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.2",
     "@eslint/json": "^0.11.0",
     "@stylistic/eslint-plugin-js": "^4.2.0",
     "@types/browserify": "^12.0.40",
@@ -233,14 +235,14 @@
     "eslint-plugin-unused-imports": "^4.1.4",
     "mocha": "^11.1.0",
     "npm-run-all": "^4.1.5",
-    "sass-embedded": "^1.86.0",
+    "sass-embedded": "^1.97.3",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.29.0",
     "vite": "^6.2.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vscode-extension-tester": "^8.13.0",
-    "yarn": "^1.22.22"
+    "vscode-extension-tester": "^8.13.0"
   },
+  "packageManager": "yarn@4.9.2",
   "dependencies": {
     "@vscode-elements/elements-lite": "^0.3.0",
     "glob": "^11.0.1",

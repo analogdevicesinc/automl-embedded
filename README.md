@@ -29,6 +29,8 @@ To build a VSIX package containing the plugin, first you need to install `yarn` 
 Once `yarn` is installed, run the following commands:
 
 ```bash
+# Allows to use package manages without having to install them
+corepack enable
 # Install dependencies
 yarn install
 # Prepare package with plugin

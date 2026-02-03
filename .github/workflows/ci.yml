@@ -16,6 +16,8 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.11
+      - name: Enable corepack
+        run: corepack enable
       - name: Run pre-commit
         uses: pre-commit/action@v3.0.0
 
@@ -28,6 +30,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -qqy yarn
+          corepack enable
           yarn install
       - name: Build the plugin
         run: |
@@ -56,6 +59,7 @@ jobs:
             xvfb \
             xauth
           pip3 install pyyaml
+          corepack enable
           yarn install
       - name: Run tests
         run: |
