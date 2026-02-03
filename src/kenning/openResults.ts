@@ -66,7 +66,7 @@ export function openReport(report: ReportData) {
         let htmlFile = file.getText();
         // Adjust links to local files
         htmlFile = htmlFile.replaceAll(
-            /((href|src)=")(_static[^"]+)"/g,
+            /((href|src)=")(_static[^"?]+)(?:\?v=[a-zA-Z0-9]+)?"/g,
             (m: string, p1: string, p2: string, p3: string) => replaceLinks(report, panel, m, p1, p2, p3),
         );
         htmlFile = htmlFile + "\n\n" + styleOverrides;
