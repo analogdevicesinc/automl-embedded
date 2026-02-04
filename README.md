@@ -55,9 +55,9 @@ In order to install it, go to Extensions, click `Install from VSIX...` and choos
 
 The easiest way to set up the environment for application and AutoML development is to develop inside a container using [Visual Studio Code Dev Containers](https://code.visualstudio.com/docs/devcontainers/containers).
 
-This repository provides two Dev Container definitions: one for general use and one for developing the AutoML VS Code extension. 
+This repository provides two Dev Container definitions: one for general use and one for developing the AutoML VS Code extension.
 
-- The Dev Container for general use is named `AutoML`, and is defined in `.devcontainer/automl/devcontainer.json`.  
+- The Dev Container for general use is named `AutoML`, and is defined in `.devcontainer/automl/devcontainer.json`.
 - The Dev Container for extension development is named `automl-embedded extension development`, and is defined in `.devcontainer/development/devcontainer.json`.
 
 To start the Dev Container, click the `Reopen in Container` button in VS Code when the pop-up appears, or run the `DevContainers: Reopen in Container` command from the Command Palette. You'll then be prompted to select which container you want to open. For general use, select "AutoML".
