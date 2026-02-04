@@ -166,6 +166,12 @@ export function validateScenario(scenario: any): scenario is ScenarioTemplate {
 
 const AI8X_COMPATIBLE_MODELS = ["Ai8xAnomalyDetectionCNN", "PyTorchAnomalyDetectionCNN"];
 
+const OPTIMIZER_TO_SUFFIX: Record<string, string> = {
+    ONNXCompiler: "onnx",
+    TFLiteCompiler: "tflite",
+    TVMCompiler: "graph_data",
+};
+
 export function populateScenario(
     baseScenario: ScenarioTemplate,
     runDir: string,
@@ -182,7 +188,8 @@ export function populateScenario(
     const configKenningZephyrRuntimePath: string | undefined = extraConfig.get("kenningZephyrRuntimePath");
     const runZephyrOutputPath = path.join(runDir, 'zephyr');
     const datasetRootPath = path.join(runDir, 'dataset');
-    const compiledModelPath = path.join(runDir, 'vae.tflite');
+    const modelSuffix = (optimizer in OPTIMIZER_TO_SUFFIX) ? OPTIMIZER_TO_SUFFIX[optimizer] : "tflite";
+    const compiledModelPath = path.join(runDir, `model.${modelSuffix}`);
 
     const platformParams = scenario.platform.parameters;
     platformParams.name = platform;

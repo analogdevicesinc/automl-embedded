@@ -190,7 +190,7 @@ function updateSelectOptions(selectField: HTMLSelectElement | null, platforms: [
 function setOption(selectField: HTMLSelectElement, name: string) {
     for (let i = 0; i < selectField.options.length; ++i) {
         const option = selectField.options.item(i);
-        if (option && option.value === name) {
+        if (option?.value === name) {
             selectField.selectedIndex = option.index;
             return i;
         }
