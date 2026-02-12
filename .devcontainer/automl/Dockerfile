@@ -1,9 +1,9 @@
-FROM ghcr.io/antmicro/kenning-zephyr-runtime@sha256:6a1966f02dc9e76ab984062c7fb50792ae89bcee6b79fe8f9569bb5b45514f28
+FROM ghcr.io/antmicro/kenning-zephyr-runtime@sha256:dc7a23a99b5b0fd51196c74b95984965761cef30b6e4469b0153ee3522cc3030
 
-ARG KENNING_ZEPHYR_RUNTIME_VERSION=69a0a51022b9e299085d28f123a8a60c78f0ec10
+ARG KENNING_ZEPHYR_RUNTIME_VERSION=082c4c5d77dd770ca99433d93355210ddc220b39
 
 # Ensure ZEPHYR_VERSION matches the one specified in the west.yml file.
-ARG ZEPHYR_VERSION=732a3a5c66553969ea01bacec19e2820b9d6b2e2
+ARG ZEPHYR_VERSION=b9bfff29f4bf99ecb19dd2078bd06447e279cfcf
 
 # Ensure ZEPHYR_SDK_VERSION is compatible with the ZEPHYR_VERSION.
 # For more information, see https://github.com/zephyrproject-rtos/sdk-ng/wiki/Zephyr-Version-Compatibility#zephyr-sdk-version-compatibility-matrix

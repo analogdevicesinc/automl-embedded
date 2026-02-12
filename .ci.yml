@@ -1,4 +1,4 @@
-image: node:20
+image: node:22
 
 pre-commit:
   script:
@@ -6,6 +6,7 @@ pre-commit:
     - apt-get install -qqy --no-install-recommends python3-pip
     - rm /usr/lib/python3.11/EXTERNALLY-MANAGED
     - pip install pre-commit
+    - corepack enable
     - pre-commit run --all-files
 
 automl-flow:
@@ -28,6 +29,7 @@ automl-flow:
       setuptools
       pyyaml
   script:
+    - corepack enable
     - yarn install
     - ./test/ui_test.sh
     - python3 ./test/validate_scenario.py /tmp/scenario.json
